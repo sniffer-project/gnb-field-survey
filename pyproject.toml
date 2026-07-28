@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gnb-field-survey"
+version = "0.1.0"
+description = "5G gNB localisation from GNSS field survey data"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "scipy",
+    "openpyxl",
+    "pyproj",
+]
+
+[project.optional-dependencies]
+animation = ["manimgl"]
+dev = ["pytest"]
+
+[tool.setuptools]
+packages = ["gnb_survey"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "unit: isolated function/module tests",
+    "integration: tests that read the real files under data/raw/",
+]

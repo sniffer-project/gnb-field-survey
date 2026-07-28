@@ -214,14 +214,43 @@ def test_convert_imports_only_stdlib():
         "the converter must run on a bare Python, but these files import "
         f"non-stdlib modules: {offenders}"
     )
+
+
+def test_the_detector_catches_a_non_stdlib_import(tmp_path):
+    """A guard that cannot fail is decoration.
+
+    test_convert_imports_only_stdlib passes the moment it is written, because
+    it locks in a property that already holds. That makes it a characterisation
+    test, and characterisation tests need their detector exercised in the
+    failing direction too -- permanently, not once by hand.
+    """
+    offender = tmp_path / "offender.py"
+    offender.write_text(
+        "import csv\nimport numpy\nfrom scipy import optimize\n", encoding="utf-8"
+    )
+
+    roots = _imported_roots(offender)
+
+    assert roots == {"csv", "numpy", "scipy"}
+    assert _is_stdlib("csv")
+    assert not _is_stdlib("numpy")
+    assert not _is_stdlib("scipy")
+
+
+def test_the_detector_ignores_relative_imports(tmp_path):
+    """`from .formats import Format` stays inside the package and is always fine."""
+    sibling = tmp_path / "sibling.py"
+    sibling.write_text("from .formats import Format\nfrom . import writer\n", encoding="utf-8")
+
+    assert _imported_roots(sibling) == set()
 ```
 
-- [ ] **Step 7: Run the guard test**
+- [ ] **Step 7: Run the guard tests**
 
 Run: `.venv/bin/python -m pytest tests/test_convert_is_stdlib_only.py -v`
-Expected: **PASS** (2 tests). `csv_to_mymaps.py` already imports only `argparse, csv, math, re, sys, decimal, enum, pathlib, typing`.
+Expected: **PASS** (4 tests). `csv_to_mymaps.py` already imports only `argparse, csv, math, re, sys, decimal, enum, pathlib, typing`.
 
-This test passes on arrival by design — it is a *characterisation* test locking in a property that already holds, so Task 4's move cannot silently break it. To confirm it can actually fail, temporarily add `import numpy` at the top of `csv_to_mymaps.py`, re-run, see it fail naming `numpy`, then remove the line and re-run to green. Do not commit the temporary import.
+`test_convert_imports_only_stdlib` passes on arrival by design — it locks in a property that already holds, so Task 4's move cannot silently break it. The two detector tests are what make it trustworthy: they prove the check fires on `numpy`/`scipy` and does not fire on relative imports.
 
 - [ ] **Step 8: Commit**
 
@@ -595,10 +624,24 @@ to:
 CONVERT_SOURCES = (ROOT / "gnb_survey" / "convert",)
 ```
 
+- [ ] **Step 8b: Delete `csv_to_mymaps.py`**
+
+```bash
+git rm csv_to_mymaps.py
+```
+
+The move is complete and nothing references it any more — confirm with:
+
+```bash
+grep -rn "csv_to_mymaps" --include="*.py" . | grep -v '/\.venv/'
+```
+
+Expected: no output. Deleting here rather than in Task 8 avoids leaving a near-verbatim duplicate of the whole converter on disk for four tasks. `main.py` does not import it, so nothing breaks.
+
 - [ ] **Step 9: Run the full suite**
 
 Run: `.venv/bin/python -m pytest -q`
-Expected: `142 passed`.
+Expected: `144 passed` (138 original + 4 guard + 2 `processed_destination`).
 
 If `test_convert_imports_only_stdlib` fails naming `typing` or `decimal`, the `_is_stdlib` helper is misresolving — check that `.venv/bin/python` is the interpreter, since a venv's `sysconfig` stdlib path differs from the system one.
 
@@ -2344,14 +2387,14 @@ git commit -m "feat: drive the animation from solved survey data via a scene JSO
 ### Task 8: Delete the old entry points and update the docs
 
 **Files:**
-- Delete: `main.py`, `csv_to_mymaps.py`
+- Delete: `main.py` (`csv_to_mymaps.py` already went in Task 4 Step 8b)
 - Modify: `README.md`, `docs/TRIANGULATE_README.md`, `docs/mappro_guide/MapPro_Guide.tex`
 
 **Interfaces:**
 - Consumes: everything from Tasks 1–7.
-- Produces: nothing new. This task removes the duplicates and makes the docs true.
+- Produces: nothing new. This task removes the last duplicate and makes the docs true.
 
-- [ ] **Step 1: Confirm nothing still imports them**
+- [ ] **Step 1: Confirm nothing still imports it**
 
 ```bash
 grep -rn "^import main\|^from main\|import csv_to_mymaps\|from csv_to_mymaps" \
@@ -2360,10 +2403,10 @@ grep -rn "^import main\|^from main\|import csv_to_mymaps\|from csv_to_mymaps" \
 
 Expected: no output. If `tests/` still references either, Task 4 or 6 left a test behind — fix it before deleting.
 
-- [ ] **Step 2: Delete them**
+- [ ] **Step 2: Delete it**
 
 ```bash
-git rm main.py csv_to_mymaps.py
+git rm main.py
 ```
 
 - [ ] **Step 3: Run the full suite**

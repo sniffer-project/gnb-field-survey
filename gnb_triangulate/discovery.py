@@ -11,7 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-SURVEY_SUBDIR = "map-pro-csv"
+SURVEY_SUBDIR = "campaigns"
 # 8 decimal places is ~1.1 mm, the least quantised of MapPro's nine formats.
 # All nine are equivalent, so this choice is cosmetic -- but it must be
 # deterministic, or repeated runs would disagree in the last millimetre.

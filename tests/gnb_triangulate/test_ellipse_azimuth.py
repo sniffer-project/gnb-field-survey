@@ -68,16 +68,12 @@ def test_real_campaign_azimuth_is_reported():
     from gnb_triangulate.campaign import build_campaign
     from gnb_triangulate.mappro import read_stations
 
-    raw = Path(__file__).resolve().parents[2] / "raw_data"
-    if not raw.is_dir():
-        pytest.skip("raw data not present")
+    fixtures = Path(__file__).resolve().parents[1] / "fixtures"
+    if not fixtures.is_dir():
+        pytest.skip("fixtures not present")
     real = build_campaign(
-        read_stations(raw / "map-pro-csv" / "20260716" / "20260716_dd (Decimal).csv"),
-        read_binoc_readings(
-            raw
-            / "binoc-measurment-sameday-different-measuring-height-same-location"
-            / "20260716_measurment_binoc.xlsx"
-        ),
+        read_stations(fixtures / "campaigns" / "20260716" / "20260716_dd (Decimal).csv"),
+        read_binoc_readings(fixtures / "campaigns" / "20260716" / "20260716_measurment_binoc.xlsx"),
         name="20260716",
     )
     solution = solve_campaign(real)

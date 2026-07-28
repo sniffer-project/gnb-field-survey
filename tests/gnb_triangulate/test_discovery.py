@@ -8,7 +8,7 @@ from gnb_triangulate.discovery import CampaignFiles, discover_campaigns
 
 
 def _campaign(root: Path, name: str, exports: tuple[str, ...], binoc: bool = True) -> None:
-    folder = root / "map-pro-csv" / name
+    folder = root / "campaigns" / name
     folder.mkdir(parents=True)
     for export in exports:
         (folder / export).write_text("Point Name\n", encoding="latin-1")
@@ -61,7 +61,7 @@ def test_reports_campaign_with_no_workbook_as_unavailable(tmp_path):
 
 @pytest.mark.unit
 def test_reports_campaign_with_no_csv_as_unavailable(tmp_path):
-    (tmp_path / "map-pro-csv" / "20260801").mkdir(parents=True)
+    (tmp_path / "campaigns" / "20260801").mkdir(parents=True)
     result = discover_campaigns(tmp_path)
     assert result.campaigns == ()
     assert "csv" in result.unavailable[0][1]
@@ -90,10 +90,10 @@ def test_data_root_without_survey_subdir_yields_nothing(tmp_path):
 
 @pytest.mark.integration
 def test_finds_the_real_campaign():
-    raw = Path(__file__).resolve().parents[2] / "raw_data"
-    if not raw.is_dir():
-        pytest.skip("raw data not present")
-    result = discover_campaigns(raw)
+    fixtures = Path(__file__).resolve().parents[1] / "fixtures"
+    if not fixtures.is_dir():
+        pytest.skip("fixtures not present")
+    result = discover_campaigns(fixtures)
     names = [c.name for c in result.campaigns]
     assert "20260716" in names
     found = next(c for c in result.campaigns if c.name == "20260716")

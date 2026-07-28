@@ -7,7 +7,7 @@ import pytest
 
 import main as cli
 
-RAW = Path(__file__).resolve().parents[2] / "raw_data"
+FIXTURES = Path(__file__).resolve().parents[1] / "fixtures"
 
 _HEADER = (
     "Point Name,Code,Northing,Easting,Elevation,Latitude,Longitude,Altitude,"
@@ -22,7 +22,7 @@ _ROWS = (
 
 @pytest.fixture()
 def data_root(tmp_path) -> Path:
-    folder = tmp_path / "map-pro-csv" / "20260716"
+    folder = tmp_path / "campaigns" / "20260716"
     folder.mkdir(parents=True)
     (folder / "dd (Decimal).csv").write_text(_HEADER + _ROWS, encoding="latin-1")
 
@@ -64,7 +64,7 @@ def test_unknown_campaign_lists_what_was_found(data_root):
 
 @pytest.mark.unit
 def test_explicit_paths_are_named_after_the_parent_folder(data_root):
-    survey = data_root / "map-pro-csv" / "20260716" / "dd (Decimal).csv"
+    survey = data_root / "campaigns" / "20260716" / "dd (Decimal).csv"
     binoc = data_root / "20260716_measurment_binoc.xlsx"
     code, text = _run([str(survey), str(binoc)])
     assert code == 0
@@ -124,7 +124,7 @@ def test_aborting_the_prompt_exits_without_a_traceback(data_root):
 def test_no_campaigns_found_names_the_expected_layout(tmp_path):
     code, text = _run(["--data-root", str(tmp_path), "--list"])
     assert code == 1
-    assert "map-pro-csv" in text
+    assert "campaigns" in text
 
 
 @pytest.mark.unit
@@ -154,9 +154,9 @@ def test_sigma_overrides_reach_the_report(data_root):
 
 @pytest.mark.integration
 def test_real_campaign_end_to_end():
-    if not RAW.is_dir():
-        pytest.skip("raw data not present")
-    code, text = _run(["20260716", "--data-root", str(RAW)])
+    if not FIXTURES.is_dir():
+        pytest.skip("fixtures data not present")
+    code, text = _run(["20260716", "--data-root", str(FIXTURES)])
     assert code == 0
     assert "1.35554" in text
 
@@ -257,7 +257,7 @@ def test_bare_name_selects_a_campaign(data_root, tmp_path, monkeypatch):
 def test_a_lone_file_path_asks_for_the_second_file(data_root, tmp_path, monkeypatch):
     """A single argument that is a file is a half-typed command, not a campaign."""
     monkeypatch.setattr(cli, "_DEFAULT_OUTPUT_DIR", tmp_path / "out")
-    survey = data_root / "map-pro-csv" / "20260716" / "dd (Decimal).csv"
+    survey = data_root / "campaigns" / "20260716" / "dd (Decimal).csv"
     code, text = _run([str(survey), "--data-root", str(data_root)])
     assert code == 1
     assert "both" in text

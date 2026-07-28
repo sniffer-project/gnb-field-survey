@@ -624,6 +624,8 @@ to:
 CONVERT_SOURCES = (ROOT / "gnb_survey" / "convert",)
 ```
 
+**Change that one line and nothing else in this file.** Task 1's review found two holes in the detector as originally specified here (PEP 420 namespace packages read as stdlib; `importlib.import_module("numpy")` invisible to the AST walk), and commit `3499beb` fixed both plus added tests that fail against the old logic. The file on disk is authoritative — do not restore the version printed in Task 1 Step 6 of this plan, which predates that fix.
+
 - [ ] **Step 8b: Delete `csv_to_mymaps.py`**
 
 ```bash

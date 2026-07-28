@@ -41,7 +41,8 @@ gnb-field-survey/
 │   ├── RESEARCH.md          # Research notes
 │   ├── mappro_guide/        # MapPro field guide (LaTeX)
 │   ├── animation/           # Manim visualization script
-│   └── pictures/            # MapPro UI screenshots
+│   ├── pictures/            # MapPro UI screenshots
+│   └── instruments/         # Hardware reference guides (Kronos, Geovid, S50III)
 ├── data/                    # Data directory (by lifecycle status)
 │   ├── raw/                 # Original read-only field survey exports
 │   │   └── surveys/<date>/

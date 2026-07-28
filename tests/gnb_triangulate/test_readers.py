@@ -104,7 +104,7 @@ _M_PER_DEG = 111_320.0
 @pytest.mark.integration
 def test_reads_every_real_export_format_identically():
     """All nine exports of 20260716 describe one survey; all must agree."""
-    folder = FIXTURES / "campaigns" / "20260716"
+    folder = FIXTURES / "surveys" / "20260716"
     if not folder.is_dir():
         pytest.skip("raw data not present")
     exports = sorted(folder.glob("*.csv"))

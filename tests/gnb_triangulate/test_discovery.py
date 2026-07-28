@@ -8,7 +8,7 @@ from gnb_triangulate.discovery import CampaignFiles, discover_campaigns
 
 
 def _campaign(root: Path, name: str, exports: tuple[str, ...], binoc: bool = True) -> None:
-    folder = root / "campaigns" / name
+    folder = root / "surveys" / name
     folder.mkdir(parents=True)
     for export in exports:
         (folder / export).write_text("Point Name\n", encoding="latin-1")
@@ -61,7 +61,7 @@ def test_reports_campaign_with_no_workbook_as_unavailable(tmp_path):
 
 @pytest.mark.unit
 def test_reports_campaign_with_no_csv_as_unavailable(tmp_path):
-    (tmp_path / "campaigns" / "20260801").mkdir(parents=True)
+    (tmp_path / "surveys" / "20260801").mkdir(parents=True)
     result = discover_campaigns(tmp_path)
     assert result.campaigns == ()
     assert "csv" in result.unavailable[0][1]

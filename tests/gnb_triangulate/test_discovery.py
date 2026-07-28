@@ -90,7 +90,7 @@ def test_data_root_without_survey_subdir_yields_nothing(tmp_path):
 
 @pytest.mark.integration
 def test_finds_the_real_campaign():
-    raw = Path(__file__).resolve().parents[1] / "raw_data"
+    raw = Path(__file__).resolve().parents[2] / "raw_data"
     if not raw.is_dir():
         pytest.skip("raw data not present")
     result = discover_campaigns(raw)

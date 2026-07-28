@@ -7,7 +7,7 @@ import pytest
 
 import main as cli
 
-RAW = Path(__file__).resolve().parents[1] / "raw_data"
+RAW = Path(__file__).resolve().parents[2] / "raw_data"
 
 _HEADER = (
     "Point Name,Code,Northing,Easting,Elevation,Latitude,Longitude,Altitude,"

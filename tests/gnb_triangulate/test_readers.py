@@ -10,7 +10,7 @@ from gnb_triangulate.binoc import read_binoc_readings
 from gnb_triangulate.campaign import CampaignDataError, build_campaign
 from gnb_triangulate.mappro import read_stations
 
-RAW = Path(__file__).resolve().parents[1] / "raw_data"
+RAW = Path(__file__).resolve().parents[2] / "raw_data"
 
 _HEADER = (
     "Point Name,Code,Northing,Easting,Elevation,Latitude,Longitude,Altitude,"

@@ -68,7 +68,7 @@ def test_real_campaign_azimuth_is_reported():
     from gnb_triangulate.campaign import build_campaign
     from gnb_triangulate.mappro import read_stations
 
-    raw = Path(__file__).resolve().parents[1] / "raw_data"
+    raw = Path(__file__).resolve().parents[2] / "raw_data"
     if not raw.is_dir():
         pytest.skip("raw data not present")
     real = build_campaign(

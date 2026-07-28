@@ -110,7 +110,7 @@ def test_reads_every_real_export_format_identically():
     exports = sorted(folder.glob("*.csv"))
     assert len(exports) == 9, f"expected 9 exports, found {len(exports)}"
 
-    baseline = {s.name: s for s in read_stations(folder / "dd (Decimal).csv")}
+    baseline = {s.name: s for s in read_stations(folder / "20260716_dd (Decimal).csv")}
     for export in exports:
         stations = read_stations(export)
         assert {s.name for s in stations} == set(baseline), f"{export.name}: point set differs"

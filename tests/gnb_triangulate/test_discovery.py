@@ -98,5 +98,5 @@ def test_finds_the_real_campaign():
     assert "20260716" in names
     found = next(c for c in result.campaigns if c.name == "20260716")
     assert found.export_count == 9
-    assert found.survey.name == "dd (Decimal).csv"
+    assert found.survey.name.endswith("dd (Decimal).csv")
     assert not found.binoc.name.startswith("~$")

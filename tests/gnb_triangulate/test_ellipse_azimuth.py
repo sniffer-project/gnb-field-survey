@@ -72,7 +72,7 @@ def test_real_campaign_azimuth_is_reported():
     if not raw.is_dir():
         pytest.skip("raw data not present")
     real = build_campaign(
-        read_stations(raw / "map-pro-csv" / "20260716" / "dd (Decimal).csv"),
+        read_stations(raw / "map-pro-csv" / "20260716" / "20260716_dd (Decimal).csv"),
         read_binoc_readings(
             raw
             / "binoc-measurment-sameday-different-measuring-height-same-location"

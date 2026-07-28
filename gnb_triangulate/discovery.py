@@ -46,7 +46,7 @@ def _usable(paths: list[Path]) -> list[Path]:
 
 def _preferred_export(exports: list[Path]) -> Path:
     for export in exports:
-        if export.name == PREFERRED_EXPORT:
+        if export.name == PREFERRED_EXPORT or export.name.endswith(PREFERRED_EXPORT):
             return export
     return exports[0]
 

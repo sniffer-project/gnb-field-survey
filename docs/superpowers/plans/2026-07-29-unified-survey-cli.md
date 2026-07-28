@@ -2481,14 +2481,25 @@ python3 survey.py convert file1.csv file2.csv
 python3 survey.py --help
 ```
 
+- [ ] **Step 7b: Sweep the old vocabulary out of the docs**
+
+Task 3 renamed `campaign` to `survey` in the code but scoped itself to `*.py`, so the prose still says "campaign" in roughly 19 places across `README.md` and `docs/TRIANGULATE_README.md` — including a file-tree listing a `campaign.py` that no longer exists (it is `assemble.py` now).
+
+```bash
+grep -rni "campaign" --include="*.md" --include="*.tex" . | grep -v '/\.venv/'
+```
+
+Rewrite each hit to the survey vocabulary: the container is a **survey**, its MapPro CSV is the **mappro** export, its sightings workbook is the **binoc** workbook. Watch for file-tree blocks and command examples, which are easy to skim past.
+
 - [ ] **Step 8: Confirm no stale references remain**
 
 ```bash
 grep -rn "csv_to_mymaps\|gnb_triangulate\|requirements.txt\|main\.py" \
   --include="*.md" --include="*.tex" . | grep -v '/\.venv/'
+grep -rni "campaign" --include="*.md" --include="*.tex" . | grep -v '/\.venv/'
 ```
 
-Expected: no output. Hits inside `docs/RESEARCH.md` describing historical work may stay if they are clearly retrospective — read each before deciding.
+Expected: no output from either. Hits inside `docs/RESEARCH.md` describing historical work may stay if they are clearly retrospective — read each before deciding.
 
 - [ ] **Step 9: Commit**
 

@@ -13,7 +13,7 @@ import math
 
 import pytest
 
-from csv_to_mymaps import Format, UnknownFormat, detect_format, to_decimal
+from gnb_survey.convert import Format, UnknownFormat, detect_format, to_decimal
 
 PT1_LAT, PT1_LON = 1.35579855, 103.69391447
 # The DMS exports resolve to 0.0001 arc-seconds (~3 mm) and the radian export to

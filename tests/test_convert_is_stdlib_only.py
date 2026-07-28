@@ -19,7 +19,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 
 # Task 4 replaces this with: ROOT / "gnb_survey" / "convert"
-CONVERT_SOURCES = (ROOT / "csv_to_mymaps.py",)
+CONVERT_SOURCES = (ROOT / "gnb_survey" / "convert",)
 
 _STDLIB_DIR = Path(sysconfig.get_paths()["stdlib"]).resolve()
 

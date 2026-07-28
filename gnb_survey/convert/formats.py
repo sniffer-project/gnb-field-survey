@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Rewrite a MapPro survey CSV's coordinate columns to decimal degrees for Google My Maps.
 
 MapPro exports the same survey in nine Lat/Lon formats. Google My Maps plots
@@ -39,14 +38,13 @@ formula injection (a non-numeric cell starting with = + - @ is prefixed with a q
 
 My Maps import limits to keep in mind: 2,000 rows/layer, 10 layers, 5 MB/layer, 100 photos/import.
 """
-import argparse
-import csv
+
+from __future__ import annotations
+
 import math
 import re
-import sys
 from decimal import Decimal, localcontext
 from enum import Enum
-from pathlib import Path
 from typing import Iterable, Optional, Sequence
 
 PRECISION = 16  # output decimal places. NOTE: 8 dp = the data's real accuracy ceiling.
@@ -72,17 +70,13 @@ COORD_COLS = (
 )
 PLOT_COLS = ("Latitude", "Longitude")  # the ones My Maps positions points by
 
-_FORMULA_PREFIXES = ("=", "+", "-", "@", "\t", "\r")
 # Regex to match valid optional-signed integer, decimal, and scientific notation
 _NUMERIC_RE = re.compile(r"^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$")
-# XML-illegal C0 control bytes. Left in place they corrupt the KML that My Maps
-# exports and make QGIS/OGR reject it, so we strip them from pass-through text.
-_C0_STRIP = {c: None for c in range(0x20) if c not in (0x09, 0x0A, 0x0D)}
 
-# For *parsing*, those same bytes must become spaces rather than vanish: the
-# receiver writes 0x1a as its minute/second mark, so deleting it merges "21" and
-# "20.8748" into "2120.8748", which fails the minutes<60 check and makes the
-# whole degree-sign export unconvertible. 0xb0 is the degree sign.
+# For *parsing*, control bytes below 0x20 must become spaces rather than
+# vanish: the receiver writes 0x1a as its minute/second mark, so deleting it
+# merges "21" and "20.8748" into "2120.8748", which fails the minutes<60 check
+# and makes the whole degree-sign export unconvertible. 0xb0 is the degree sign.
 _SEPARATORS = {c: " " for c in range(0x20) if c not in (0x09, 0x0A, 0x0D)}
 _SEPARATORS[0xB0] = " "
 
@@ -111,19 +105,6 @@ BARE_NUMERIC_FORMATS = (
 
 class UnknownFormat(ValueError):
     """The Lat/Lon format could not be determined, or contradicts Northing/Easting."""
-
-
-def _safe_cell(value: object) -> str:
-    """Strip XML-illegal control bytes, then neutralise spreadsheet formula injection.
-
-    Only a cell that starts with a formula trigger AND is not a valid number gets a leading
-    quote, so coordinates and negative values (e.g. '-0.0012', '1.3531...') pass through clean.
-    """
-    s = str(value).translate(_C0_STRIP)
-    if s[:1] in _FORMULA_PREFIXES:
-        if not _NUMERIC_RE.match(s):
-            return "'" + s
-    return s
 
 
 def _split_hemisphere(text: str) -> "tuple[str, bool]":
@@ -322,106 +303,3 @@ def detect_format(rows: Iterable[dict]) -> Format:
             f"{usable[1][0].value} ({usable[1][1]:.2f} m) both fit."
         )
     return best_fmt
-
-
-def convert(in_path: Path) -> Path:
-    out_path = in_path.with_name(in_path.stem + "_mymaps.csv")
-    unparsed: list = []
-    # latin-1 never raises on the mangled 0xB0 / 0x1A bytes; decoding is lossless.
-    with in_path.open(newline="", encoding="latin-1") as f:
-        reader = csv.DictReader(f)
-        fieldnames: list = list(reader.fieldnames or [])
-        rows_out: list = list(reader)
-
-    if not fieldnames:
-        print(
-            f"WARNING: {in_path.name}: empty or no header - nothing written.",
-            file=sys.stderr
-        )
-        return out_path
-
-    fmt = detect_format(rows_out)  # raises UnknownFormat rather than guess wrong
-
-    convert_cols: list = [c for c in COORD_COLS if c in fieldnames]
-    if not convert_cols:
-        print(
-            f"WARNING: {in_path.name}: none of the expected coordinate "
-            f"columns found - output is an unchanged copy.",
-            file=sys.stderr
-        )
-
-    for row in rows_out:
-        plot_ok = True
-        for col in convert_cols:
-            dec = to_decimal(row.get(col), fmt)
-            if dec is not None:
-                row[col] = dec  # replace in place; leave untouched if unparseable
-            elif col in PLOT_COLS:
-                plot_ok = False
-        if not plot_ok:
-            unparsed.append(row.get("Point Name", "?"))
-
-    # same columns as the source - only the coordinate values changed. Headers are sanitized
-    # too (the receiver mangles two with a 0x1A byte) so the file is XML-clean end to end.
-    clean_fields: list = [str(fn).translate(_C0_STRIP) for fn in fieldnames]
-    with out_path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        writer.writerow(clean_fields)
-        for row in rows_out:
-            writer.writerow([_safe_cell(row.get(fn, "")) for fn in fieldnames])
-
-    print(
-        f"{in_path.name}: {len(rows_out)} rows -> {out_path.name} "
-        f"({len(fieldnames)} columns; detected {fmt.value}; "
-        f"converted in place: {', '.join(convert_cols) or 'none'})"
-    )
-    if unparsed:
-        print(
-            f"   WARNING: Latitude/Longitude unparseable for: "
-            f"{', '.join(unparsed)} (left as-is - they won't plot in My Maps)",
-            file=sys.stderr
-        )
-    preview_limit = 2
-    if len(rows_out) > preview_limit:
-        print(f"   Preview of first {preview_limit} rows:")
-    for row in rows_out[:preview_limit]:
-        print(
-            f"   {row.get('Point Name', '?')}: "
-            f"{row.get('Latitude')}, {row.get('Longitude')}"
-        )
-    return out_path
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description=(
-            "Rewrite a MapPro survey CSV's coordinate columns "
-            "to decimal degrees for Google My Maps."
-        )
-    )
-    parser.add_argument(
-        "files",
-        metavar="FILE",
-        nargs="+",
-        help="One or more CSV files to convert."
-    )
-
-    args = parser.parse_args()
-
-    exit_code = 0
-    for file_str in args.files:
-        path = Path(file_str)
-        try:
-            if not path.is_file():
-                raise FileNotFoundError(f"File not found: {file_str}")
-            convert(path)
-        except UnknownFormat as e:
-            print(f"ERROR: {path.name}: {e}", file=sys.stderr)
-            exit_code = 1
-        except FileNotFoundError as e:
-            print(f"ERROR: {e}", file=sys.stderr)
-            exit_code = 1
-        except Exception as e:
-            print(f"ERROR: failed to convert {file_str}: {e}", file=sys.stderr)
-            exit_code = 1
-    raise SystemExit(exit_code)

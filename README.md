@@ -40,9 +40,7 @@ gnb-field-survey/
 │   └── animation/           # Manim visualization script
 ├── raw_data/                # Survey & measurement data
 │   ├── campaigns/           # Field campaign data by date
-│   ├── map_pro_csv/         # Raw MapPro exports
-│   └── binocular_measurements/
-├── scripts/                 # Auxiliary/legacy scripts
+│   └── map-pro-csv/         # Raw MapPro exports (all 9 formats)
 └── output/                  # Generated results (gitignored)
 ```
 

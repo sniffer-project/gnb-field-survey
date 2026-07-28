@@ -41,9 +41,9 @@ from gnb_triangulate.prompt import select_campaign
 from gnb_triangulate.report import format_solution
 from gnb_triangulate.solver import solve_campaign
 
-_DEFAULT_DATA_ROOT = Path(__file__).resolve().parent / "raw_data"
+_DEFAULT_DATA_ROOT = Path(__file__).resolve().parent / "data" / "raw"
 # Generated output lives outside raw data/, which stays purely raw.
-_DEFAULT_OUTPUT_DIR = Path(__file__).resolve().parent / "output"
+_DEFAULT_OUTPUT_DIR = Path(__file__).resolve().parent / "data" / "output"
 
 
 def _parse_args(argv: list[str]) -> argparse.Namespace:

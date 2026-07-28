@@ -1,0 +1,67 @@
+# gnb-field-survey
+
+End-to-end pipeline for 5G gNB (next-generation NodeB) base station localization using GNSS field survey data.
+
+## Overview
+
+This repository combines two workflows into a unified pipeline:
+
+1. **Survey Data Processing** (`csv_to_mymaps.py`) — Converts raw MapPro GNSS survey exports (9 coordinate formats) into clean, high-precision decimal-degree CSVs for Google My Maps and QGIS.
+
+2. **gNB Trilateration** (`main.py` + `gnb_triangulate/`) — Estimates the 3D position of a 5G gNB antenna using weighted non-linear least-squares optimization over slant distances and elevation angles measured from known GNSS ground marks.
+
+## Quick Start
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Convert survey data for Google My Maps
+python csv_to_mymaps.py path/to/survey_export.csv
+
+# Run gNB trilateration (interactive campaign picker)
+python main.py
+
+# Run tests
+pytest
+```
+
+## Project Structure
+
+```
+gnb-field-survey/
+├── main.py                  # gNB trilateration entry point
+├── csv_to_mymaps.py         # Survey CSV → My Maps converter
+├── gnb_triangulate/         # Core trilateration package
+├── tests/                   # Unified test suite
+├── docs/                    # Documentation & guides
+│   ├── RESEARCH.md          # Research notes
+│   ├── mappro_guide/        # MapPro field guide (LaTeX)
+│   └── animation/           # Manim visualization script
+├── raw_data/                # Survey & measurement data
+│   ├── campaigns/           # Field campaign data by date
+│   ├── map_pro_csv/         # Raw MapPro exports
+│   └── binocular_measurements/
+├── scripts/                 # Auxiliary/legacy scripts
+└── output/                  # Generated results (gitignored)
+```
+
+## Key Features
+
+### Survey Data Processing
+- Auto-detects 9 MapPro coordinate export formats
+- High-precision conversion using `decimal.Decimal` arithmetic
+- Sanitizes XML-illegal control bytes and formula injection risks
+- Zero external runtime dependencies
+
+### gNB Trilateration
+- 3D trilateration via Squared-Range Least Squares (SR-LS) + Levenberg-Marquardt
+- 1σ uncertainty estimates and 95% confidence error ellipse
+- WGS84 + SVY21 (EPSG:3414) coordinate output
+- Exports gNB location + error ellipse ring to Google My Maps CSV
+
+## Dependencies
+
+- Python 3.10+
+- NumPy, SciPy, openpyxl, pyproj (for trilateration)
+- No external dependencies for survey data conversion

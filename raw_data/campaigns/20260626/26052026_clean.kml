@@ -1,0 +1,854 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>26/05/2026</name>
+    <description/>
+    <Style id="icon-1899-0288D1-normal">
+      <IconStyle>
+        <scale>1</scale>
+        <Icon>
+          <href>images/icon-1.png</href>
+        </Icon>
+        <hotSpot x="32" xunits="pixels" y="64" yunits="insetPixels"/>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1899-0288D1-highlight">
+      <IconStyle>
+        <scale>1</scale>
+        <Icon>
+          <href>images/icon-1.png</href>
+        </Icon>
+        <hotSpot x="32" xunits="pixels" y="64" yunits="insetPixels"/>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1899-0288D1">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1899-0288D1-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1899-0288D1-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Folder>
+      <name>20260526_mymaps.csv</name>
+      <Placemark>
+        <name>Sniffer 1</name>
+        <description><![CDATA[Code: <br>Northing: 149,654.654<br>Easting: 353,279.757<br>Elevation: 25.02<br>Latitude: 1.3530677<br>Longitude: 103.6817418<br>Altitude: 25.02<br>Station Correction x: <br>Station Correction y: <br>Station Correction h: <br>Original Latitude: 1.353<br>Original Longitude: 103.682<br>Original Altitude: 27.086<br>Measuring type: Pole Height<br>Measuring height: 2<br>Antenna Height: 2.066<br>AGE: 1<br>Local time: 2026-05-26 10:05:17.000<br>Solution Status: FIXED<br>Used satellites: 41<br>Tracked satellites: 41<br>Measurement Method: Smooth Point<br>Repeat Count: 5<br>N: 0<br>E: 0.001<br>HRMS: 0.004<br>VRMS: 0.009<br>PDOP: 0.8<br>HDOP: 0.7<br>VDOP: 0.7<br>Base ID: 11<br>Base Latitude: 1.346<br>Base Longitude: 103.68<br>Base Altitude: 76.246<br>Distance to Ref: 829.693<br>Inclination correction: Not Set<br>Pitch: 0<br>Roll: 0<br>Yaw: 0<br>Inclined angle: 0°0000.0000<br>Projected angle: 0°0000.0000]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="Code">
+            <value/>
+          </Data>
+          <Data name="Northing">
+            <value>149654.6542</value>
+          </Data>
+          <Data name="Easting">
+            <value>353279.7573</value>
+          </Data>
+          <Data name="Elevation">
+            <value>25.0202</value>
+          </Data>
+          <Data name="Latitude">
+            <value>1.3530677</value>
+          </Data>
+          <Data name="Longitude">
+            <value>103.6817418</value>
+          </Data>
+          <Data name="Altitude">
+            <value>25.0202</value>
+          </Data>
+          <Data name="Station Correction x">
+            <value/>
+          </Data>
+          <Data name="Station Correction y">
+            <value/>
+          </Data>
+          <Data name="Station Correction h">
+            <value/>
+          </Data>
+          <Data name="Original Latitude">
+            <value>1.3530676666666668</value>
+          </Data>
+          <Data name="Original Longitude">
+            <value>103.68174177777777</value>
+          </Data>
+          <Data name="Original Altitude">
+            <value>27.0862</value>
+          </Data>
+          <Data name="Measuring type">
+            <value>Pole Height</value>
+          </Data>
+          <Data name="Measuring height">
+            <value>2.0</value>
+          </Data>
+          <Data name="Antenna Height">
+            <value>2.066</value>
+          </Data>
+          <Data name="AGE">
+            <value>1.0</value>
+          </Data>
+          <Data name="Local time">
+            <value>2026-05-26 10:05:17.000</value>
+          </Data>
+          <Data name="Solution Status">
+            <value>FIXED</value>
+          </Data>
+          <Data name="Used satellites">
+            <value>41.0</value>
+          </Data>
+          <Data name="Tracked satellites">
+            <value>41.0</value>
+          </Data>
+          <Data name="Measurement Method">
+            <value>Smooth Point</value>
+          </Data>
+          <Data name="Repeat Count">
+            <value>5.0</value>
+          </Data>
+          <Data name="N">
+            <value>4.0E-4</value>
+          </Data>
+          <Data name="E">
+            <value>6.0E-4</value>
+          </Data>
+          <Data name="HRMS">
+            <value>0.0041</value>
+          </Data>
+          <Data name="VRMS">
+            <value>0.0092</value>
+          </Data>
+          <Data name="PDOP">
+            <value>0.8</value>
+          </Data>
+          <Data name="HDOP">
+            <value>0.7</value>
+          </Data>
+          <Data name="VDOP">
+            <value>0.7</value>
+          </Data>
+          <Data name="Base ID">
+            <value>11.0</value>
+          </Data>
+          <Data name="Base Latitude">
+            <value>1.3457911388888888</value>
+          </Data>
+          <Data name="Base Longitude">
+            <value>103.67997686111111</value>
+          </Data>
+          <Data name="Base Altitude">
+            <value>76.2458</value>
+          </Data>
+          <Data name="Distance to Ref">
+            <value>829.6933</value>
+          </Data>
+          <Data name="Inclination correction">
+            <value>Not Set</value>
+          </Data>
+          <Data name="Pitch">
+            <value>0.0</value>
+          </Data>
+          <Data name="Roll">
+            <value>0.0</value>
+          </Data>
+          <Data name="Yaw">
+            <value>0.0</value>
+          </Data>
+          <Data name="Inclined angle">
+            <value>0°0000.0000</value>
+          </Data>
+          <Data name="Projected angle">
+            <value>0°0000.0000</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            103.6817418,1.3530677,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Sniffer 2</name>
+        <description><![CDATA[Code: <br>Northing: 149,685.172<br>Easting: 353,293.592<br>Elevation: 24.564<br>Latitude: 1.3533437<br>Longitude: 103.6818659<br>Altitude: 24.564<br>Station Correction x: <br>Station Correction y: <br>Station Correction h: <br>Original Latitude: 1.353<br>Original Longitude: 103.682<br>Original Altitude: 26.63<br>Measuring type: Pole Height<br>Measuring height: 2<br>Antenna Height: 2.066<br>AGE: 1<br>Local time: 2026-05-26 10:17:05.000<br>Solution Status: FIXED<br>Used satellites: 42<br>Tracked satellites: 42<br>Measurement Method: Smooth Point<br>Repeat Count: 5<br>N: 0.001<br>E: 0.001<br>HRMS: 0.004<br>VRMS: 0.01<br>PDOP: 0.8<br>HDOP: 0.7<br>VDOP: 0.7<br>Base ID: 11<br>Base Latitude: 1.346<br>Base Longitude: 103.68<br>Base Altitude: 76.246<br>Distance to Ref: 862.608<br>Inclination correction: Not Set<br>Pitch: 0<br>Roll: 0<br>Yaw: 0<br>Inclined angle: 0°0000.0000<br>Projected angle: 0°0000.0000]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="Code">
+            <value/>
+          </Data>
+          <Data name="Northing">
+            <value>149685.1716</value>
+          </Data>
+          <Data name="Easting">
+            <value>353293.5919</value>
+          </Data>
+          <Data name="Elevation">
+            <value>24.5636</value>
+          </Data>
+          <Data name="Latitude">
+            <value>1.3533437</value>
+          </Data>
+          <Data name="Longitude">
+            <value>103.6818659</value>
+          </Data>
+          <Data name="Altitude">
+            <value>24.5636</value>
+          </Data>
+          <Data name="Station Correction x">
+            <value/>
+          </Data>
+          <Data name="Station Correction y">
+            <value/>
+          </Data>
+          <Data name="Station Correction h">
+            <value/>
+          </Data>
+          <Data name="Original Latitude">
+            <value>1.3533436666666667</value>
+          </Data>
+          <Data name="Original Longitude">
+            <value>103.68186591666667</value>
+          </Data>
+          <Data name="Original Altitude">
+            <value>26.6296</value>
+          </Data>
+          <Data name="Measuring type">
+            <value>Pole Height</value>
+          </Data>
+          <Data name="Measuring height">
+            <value>2.0</value>
+          </Data>
+          <Data name="Antenna Height">
+            <value>2.066</value>
+          </Data>
+          <Data name="AGE">
+            <value>1.0</value>
+          </Data>
+          <Data name="Local time">
+            <value>2026-05-26 10:17:05.000</value>
+          </Data>
+          <Data name="Solution Status">
+            <value>FIXED</value>
+          </Data>
+          <Data name="Used satellites">
+            <value>42.0</value>
+          </Data>
+          <Data name="Tracked satellites">
+            <value>42.0</value>
+          </Data>
+          <Data name="Measurement Method">
+            <value>Smooth Point</value>
+          </Data>
+          <Data name="Repeat Count">
+            <value>5.0</value>
+          </Data>
+          <Data name="N">
+            <value>6.0E-4</value>
+          </Data>
+          <Data name="E">
+            <value>6.0E-4</value>
+          </Data>
+          <Data name="HRMS">
+            <value>0.0042</value>
+          </Data>
+          <Data name="VRMS">
+            <value>0.01</value>
+          </Data>
+          <Data name="PDOP">
+            <value>0.8</value>
+          </Data>
+          <Data name="HDOP">
+            <value>0.7</value>
+          </Data>
+          <Data name="VDOP">
+            <value>0.7</value>
+          </Data>
+          <Data name="Base ID">
+            <value>11.0</value>
+          </Data>
+          <Data name="Base Latitude">
+            <value>1.3457911388888888</value>
+          </Data>
+          <Data name="Base Longitude">
+            <value>103.67997686111111</value>
+          </Data>
+          <Data name="Base Altitude">
+            <value>76.2458</value>
+          </Data>
+          <Data name="Distance to Ref">
+            <value>862.6084</value>
+          </Data>
+          <Data name="Inclination correction">
+            <value>Not Set</value>
+          </Data>
+          <Data name="Pitch">
+            <value>0.0</value>
+          </Data>
+          <Data name="Roll">
+            <value>0.0</value>
+          </Data>
+          <Data name="Yaw">
+            <value>0.0</value>
+          </Data>
+          <Data name="Inclined angle">
+            <value>0°0000.0000</value>
+          </Data>
+          <Data name="Projected angle">
+            <value>0°0000.0000</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            103.6818659,1.3533437,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Sniffer 3</name>
+        <description><![CDATA[Code: <br>Northing: 149,704.506<br>Easting: 353,319.008<br>Elevation: 24.392<br>Latitude: 1.3535186<br>Longitude: 103.6820941<br>Altitude: 24.392<br>Station Correction x: <br>Station Correction y: <br>Station Correction h: <br>Original Latitude: 1.354<br>Original Longitude: 103.682<br>Original Altitude: 26.458<br>Measuring type: Pole Height<br>Measuring height: 2<br>Antenna Height: 2.066<br>AGE: 1<br>Local time: 2026-05-26 10:24:50.000<br>Solution Status: FIXED<br>Used satellites: 40<br>Tracked satellites: 40<br>Measurement Method: Smooth Point<br>Repeat Count: 5<br>N: 0.001<br>E: 0.001<br>HRMS: 0.004<br>VRMS: 0.01<br>PDOP: 0.8<br>HDOP: 0.7<br>VDOP: 0.7<br>Base ID: 11<br>Base Latitude: 1.346<br>Base Longitude: 103.68<br>Base Altitude: 76.246<br>Distance to Ref: 887.759<br>Inclination correction: Not Set<br>Pitch: 0<br>Roll: 0<br>Yaw: 0<br>Inclined angle: 0°0000.0000<br>Projected angle: 0°0000.0000]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="Code">
+            <value/>
+          </Data>
+          <Data name="Northing">
+            <value>149704.5056</value>
+          </Data>
+          <Data name="Easting">
+            <value>353319.0084</value>
+          </Data>
+          <Data name="Elevation">
+            <value>24.3921</value>
+          </Data>
+          <Data name="Latitude">
+            <value>1.3535186</value>
+          </Data>
+          <Data name="Longitude">
+            <value>103.6820941</value>
+          </Data>
+          <Data name="Altitude">
+            <value>24.3921</value>
+          </Data>
+          <Data name="Station Correction x">
+            <value/>
+          </Data>
+          <Data name="Station Correction y">
+            <value/>
+          </Data>
+          <Data name="Station Correction h">
+            <value/>
+          </Data>
+          <Data name="Original Latitude">
+            <value>1.3535185833333332</value>
+          </Data>
+          <Data name="Original Longitude">
+            <value>103.68209413888889</value>
+          </Data>
+          <Data name="Original Altitude">
+            <value>26.4581</value>
+          </Data>
+          <Data name="Measuring type">
+            <value>Pole Height</value>
+          </Data>
+          <Data name="Measuring height">
+            <value>2.0</value>
+          </Data>
+          <Data name="Antenna Height">
+            <value>2.066</value>
+          </Data>
+          <Data name="AGE">
+            <value>1.0</value>
+          </Data>
+          <Data name="Local time">
+            <value>2026-05-26 10:24:50.000</value>
+          </Data>
+          <Data name="Solution Status">
+            <value>FIXED</value>
+          </Data>
+          <Data name="Used satellites">
+            <value>40.0</value>
+          </Data>
+          <Data name="Tracked satellites">
+            <value>40.0</value>
+          </Data>
+          <Data name="Measurement Method">
+            <value>Smooth Point</value>
+          </Data>
+          <Data name="Repeat Count">
+            <value>5.0</value>
+          </Data>
+          <Data name="N">
+            <value>6.0E-4</value>
+          </Data>
+          <Data name="E">
+            <value>6.0E-4</value>
+          </Data>
+          <Data name="HRMS">
+            <value>0.0042</value>
+          </Data>
+          <Data name="VRMS">
+            <value>0.01</value>
+          </Data>
+          <Data name="PDOP">
+            <value>0.8</value>
+          </Data>
+          <Data name="HDOP">
+            <value>0.7</value>
+          </Data>
+          <Data name="VDOP">
+            <value>0.7</value>
+          </Data>
+          <Data name="Base ID">
+            <value>11.0</value>
+          </Data>
+          <Data name="Base Latitude">
+            <value>1.3457911388888888</value>
+          </Data>
+          <Data name="Base Longitude">
+            <value>103.67997686111111</value>
+          </Data>
+          <Data name="Base Altitude">
+            <value>76.2458</value>
+          </Data>
+          <Data name="Distance to Ref">
+            <value>887.7593</value>
+          </Data>
+          <Data name="Inclination correction">
+            <value>Not Set</value>
+          </Data>
+          <Data name="Pitch">
+            <value>0.0</value>
+          </Data>
+          <Data name="Roll">
+            <value>0.0</value>
+          </Data>
+          <Data name="Yaw">
+            <value>0.0</value>
+          </Data>
+          <Data name="Inclined angle">
+            <value>0°0000.0000</value>
+          </Data>
+          <Data name="Projected angle">
+            <value>0°0000.0000</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            103.6820941,1.3535186,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Sniffer 4</name>
+        <description><![CDATA[Code: <br>Northing: 149,677.845<br>Easting: 353,276.978<br>Elevation: 24.799<br>Latitude: 1.3532773<br>Longitude: 103.6817167<br>Altitude: 24.799<br>Station Correction x: <br>Station Correction y: <br>Station Correction h: <br>Original Latitude: 1.353<br>Original Longitude: 103.682<br>Original Altitude: 26.866<br>Measuring type: Pole Height<br>Measuring height: 2<br>Antenna Height: 2.066<br>AGE: 1<br>Local time: 2026-05-26 10:37:38.000<br>Solution Status: FIXED<br>Used satellites: 42<br>Tracked satellites: 43<br>Measurement Method: Smooth Point<br>Repeat Count: 5<br>N: 0.001<br>E: 0.001<br>HRMS: 0.004<br>VRMS: 0.01<br>PDOP: 0.8<br>HDOP: 0.7<br>VDOP: 0.7<br>Base ID: 11<br>Base Latitude: 1.346<br>Base Longitude: 103.68<br>Base Altitude: 76.246<br>Distance to Ref: 851.568<br>Inclination correction: Not Set<br>Pitch: 0<br>Roll: 0<br>Yaw: 0<br>Inclined angle: 0°0000.0000<br>Projected angle: 0°0000.0000]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="Code">
+            <value/>
+          </Data>
+          <Data name="Northing">
+            <value>149677.8449</value>
+          </Data>
+          <Data name="Easting">
+            <value>353276.9778</value>
+          </Data>
+          <Data name="Elevation">
+            <value>24.7995</value>
+          </Data>
+          <Data name="Latitude">
+            <value>1.3532773</value>
+          </Data>
+          <Data name="Longitude">
+            <value>103.6817167</value>
+          </Data>
+          <Data name="Altitude">
+            <value>24.7995</value>
+          </Data>
+          <Data name="Station Correction x">
+            <value/>
+          </Data>
+          <Data name="Station Correction y">
+            <value/>
+          </Data>
+          <Data name="Station Correction h">
+            <value/>
+          </Data>
+          <Data name="Original Latitude">
+            <value>1.3532773333333332</value>
+          </Data>
+          <Data name="Original Longitude">
+            <value>103.68171669444445</value>
+          </Data>
+          <Data name="Original Altitude">
+            <value>26.8655</value>
+          </Data>
+          <Data name="Measuring type">
+            <value>Pole Height</value>
+          </Data>
+          <Data name="Measuring height">
+            <value>2.0</value>
+          </Data>
+          <Data name="Antenna Height">
+            <value>2.066</value>
+          </Data>
+          <Data name="AGE">
+            <value>1.0</value>
+          </Data>
+          <Data name="Local time">
+            <value>2026-05-26 10:37:38.000</value>
+          </Data>
+          <Data name="Solution Status">
+            <value>FIXED</value>
+          </Data>
+          <Data name="Used satellites">
+            <value>42.0</value>
+          </Data>
+          <Data name="Tracked satellites">
+            <value>43.0</value>
+          </Data>
+          <Data name="Measurement Method">
+            <value>Smooth Point</value>
+          </Data>
+          <Data name="Repeat Count">
+            <value>5.0</value>
+          </Data>
+          <Data name="N">
+            <value>6.0E-4</value>
+          </Data>
+          <Data name="E">
+            <value>6.0E-4</value>
+          </Data>
+          <Data name="HRMS">
+            <value>0.0042</value>
+          </Data>
+          <Data name="VRMS">
+            <value>0.01</value>
+          </Data>
+          <Data name="PDOP">
+            <value>0.8</value>
+          </Data>
+          <Data name="HDOP">
+            <value>0.7</value>
+          </Data>
+          <Data name="VDOP">
+            <value>0.7</value>
+          </Data>
+          <Data name="Base ID">
+            <value>11.0</value>
+          </Data>
+          <Data name="Base Latitude">
+            <value>1.3457911388888888</value>
+          </Data>
+          <Data name="Base Longitude">
+            <value>103.67997686111111</value>
+          </Data>
+          <Data name="Base Altitude">
+            <value>76.2458</value>
+          </Data>
+          <Data name="Distance to Ref">
+            <value>851.568</value>
+          </Data>
+          <Data name="Inclination correction">
+            <value>Not Set</value>
+          </Data>
+          <Data name="Pitch">
+            <value>0.0</value>
+          </Data>
+          <Data name="Roll">
+            <value>0.0</value>
+          </Data>
+          <Data name="Yaw">
+            <value>0.0</value>
+          </Data>
+          <Data name="Inclined angle">
+            <value>0°0000.0000</value>
+          </Data>
+          <Data name="Projected angle">
+            <value>0°0000.0000</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            103.6817167,1.3532773,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Sniffer 5</name>
+        <description><![CDATA[Code: <br>Northing: 149,662.23<br>Easting: 353,294.78<br>Elevation: 24.711<br>Latitude: 1.3531363<br>Longitude: 103.6818767<br>Altitude: 24.711<br>Station Correction x: <br>Station Correction y: <br>Station Correction h: <br>Original Latitude: 1.353<br>Original Longitude: 103.682<br>Original Altitude: 26.777<br>Measuring type: Pole Height<br>Measuring height: 2<br>Antenna Height: 2.066<br>AGE: 1<br>Local time: 2026-05-26 10:42:54.000<br>Solution Status: FIXED<br>Used satellites: 42<br>Tracked satellites: 42<br>Measurement Method: Smooth Point<br>Repeat Count: 5<br>N: 0.001<br>E: 0.001<br>HRMS: 0.004<br>VRMS: 0.01<br>PDOP: 0.8<br>HDOP: 0.7<br>VDOP: 0.7<br>Base ID: 11<br>Base Latitude: 1.346<br>Base Longitude: 103.68<br>Base Altitude: 76.246<br>Distance to Ref: 840.716<br>Inclination correction: Not Set<br>Pitch: 0<br>Roll: 0<br>Yaw: 0<br>Inclined angle: 0°0000.0000<br>Projected angle: 0°0000.0000]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="Code">
+            <value/>
+          </Data>
+          <Data name="Northing">
+            <value>149662.23</value>
+          </Data>
+          <Data name="Easting">
+            <value>353294.7804</value>
+          </Data>
+          <Data name="Elevation">
+            <value>24.7107</value>
+          </Data>
+          <Data name="Latitude">
+            <value>1.3531363</value>
+          </Data>
+          <Data name="Longitude">
+            <value>103.6818767</value>
+          </Data>
+          <Data name="Altitude">
+            <value>24.7107</value>
+          </Data>
+          <Data name="Station Correction x">
+            <value/>
+          </Data>
+          <Data name="Station Correction y">
+            <value/>
+          </Data>
+          <Data name="Station Correction h">
+            <value/>
+          </Data>
+          <Data name="Original Latitude">
+            <value>1.35313625</value>
+          </Data>
+          <Data name="Original Longitude">
+            <value>103.68187669444444</value>
+          </Data>
+          <Data name="Original Altitude">
+            <value>26.7767</value>
+          </Data>
+          <Data name="Measuring type">
+            <value>Pole Height</value>
+          </Data>
+          <Data name="Measuring height">
+            <value>2.0</value>
+          </Data>
+          <Data name="Antenna Height">
+            <value>2.066</value>
+          </Data>
+          <Data name="AGE">
+            <value>1.0</value>
+          </Data>
+          <Data name="Local time">
+            <value>2026-05-26 10:42:54.000</value>
+          </Data>
+          <Data name="Solution Status">
+            <value>FIXED</value>
+          </Data>
+          <Data name="Used satellites">
+            <value>42.0</value>
+          </Data>
+          <Data name="Tracked satellites">
+            <value>42.0</value>
+          </Data>
+          <Data name="Measurement Method">
+            <value>Smooth Point</value>
+          </Data>
+          <Data name="Repeat Count">
+            <value>5.0</value>
+          </Data>
+          <Data name="N">
+            <value>6.0E-4</value>
+          </Data>
+          <Data name="E">
+            <value>6.0E-4</value>
+          </Data>
+          <Data name="HRMS">
+            <value>0.0042</value>
+          </Data>
+          <Data name="VRMS">
+            <value>0.01</value>
+          </Data>
+          <Data name="PDOP">
+            <value>0.8</value>
+          </Data>
+          <Data name="HDOP">
+            <value>0.7</value>
+          </Data>
+          <Data name="VDOP">
+            <value>0.7</value>
+          </Data>
+          <Data name="Base ID">
+            <value>11.0</value>
+          </Data>
+          <Data name="Base Latitude">
+            <value>1.3457911388888888</value>
+          </Data>
+          <Data name="Base Longitude">
+            <value>103.67997686111111</value>
+          </Data>
+          <Data name="Base Altitude">
+            <value>76.2458</value>
+          </Data>
+          <Data name="Distance to Ref">
+            <value>840.7163</value>
+          </Data>
+          <Data name="Inclination correction">
+            <value>Not Set</value>
+          </Data>
+          <Data name="Pitch">
+            <value>0.0</value>
+          </Data>
+          <Data name="Roll">
+            <value>0.0</value>
+          </Data>
+          <Data name="Yaw">
+            <value>0.0</value>
+          </Data>
+          <Data name="Inclined angle">
+            <value>0°0000.0000</value>
+          </Data>
+          <Data name="Projected angle">
+            <value>0°0000.0000</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            103.6818767,1.3531363,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Sniffer 6</name>
+        <description><![CDATA[Code: <br>Northing: 149,662.203<br>Easting: 353,294.79<br>Elevation: 25.116<br>Latitude: 1.353136<br>Longitude: 103.6818768<br>Altitude: 25.116<br>Station Correction x: <br>Station Correction y: <br>Station Correction h: <br>Original Latitude: 1.353<br>Original Longitude: 103.682<br>Original Altitude: 27.182<br>Measuring type: Pole Height<br>Measuring height: 2<br>Antenna Height: 2.066<br>AGE: 1<br>Local time: 2026-05-26 10:43:55.000<br>Solution Status: FIXED<br>Used satellites: 42<br>Tracked satellites: 42<br>Measurement Method: Smooth Point<br>Repeat Count: 5<br>N: 0<br>E: 0.001<br>HRMS: 0.004<br>VRMS: 0.009<br>PDOP: 0.8<br>HDOP: 0.7<br>VDOP: 0.7<br>Base ID: 11<br>Base Latitude: 1.346<br>Base Longitude: 103.68<br>Base Altitude: 76.246<br>Distance to Ref: 840.669<br>Inclination correction: Not Set<br>Pitch: 0<br>Roll: 0<br>Yaw: 0<br>Inclined angle: 0°0000.0000<br>Projected angle: 0°0000.0000]]></description>
+        <styleUrl>#icon-1899-0288D1</styleUrl>
+        <ExtendedData>
+          <Data name="Code">
+            <value/>
+          </Data>
+          <Data name="Northing">
+            <value>149662.2029</value>
+          </Data>
+          <Data name="Easting">
+            <value>353294.7895</value>
+          </Data>
+          <Data name="Elevation">
+            <value>25.1157</value>
+          </Data>
+          <Data name="Latitude">
+            <value>1.353136</value>
+          </Data>
+          <Data name="Longitude">
+            <value>103.6818768</value>
+          </Data>
+          <Data name="Altitude">
+            <value>25.1157</value>
+          </Data>
+          <Data name="Station Correction x">
+            <value/>
+          </Data>
+          <Data name="Station Correction y">
+            <value/>
+          </Data>
+          <Data name="Station Correction h">
+            <value/>
+          </Data>
+          <Data name="Original Latitude">
+            <value>1.353136</value>
+          </Data>
+          <Data name="Original Longitude">
+            <value>103.68187677777777</value>
+          </Data>
+          <Data name="Original Altitude">
+            <value>27.1817</value>
+          </Data>
+          <Data name="Measuring type">
+            <value>Pole Height</value>
+          </Data>
+          <Data name="Measuring height">
+            <value>2.0</value>
+          </Data>
+          <Data name="Antenna Height">
+            <value>2.066</value>
+          </Data>
+          <Data name="AGE">
+            <value>1.0</value>
+          </Data>
+          <Data name="Local time">
+            <value>2026-05-26 10:43:55.000</value>
+          </Data>
+          <Data name="Solution Status">
+            <value>FIXED</value>
+          </Data>
+          <Data name="Used satellites">
+            <value>42.0</value>
+          </Data>
+          <Data name="Tracked satellites">
+            <value>42.0</value>
+          </Data>
+          <Data name="Measurement Method">
+            <value>Smooth Point</value>
+          </Data>
+          <Data name="Repeat Count">
+            <value>5.0</value>
+          </Data>
+          <Data name="N">
+            <value>4.0E-4</value>
+          </Data>
+          <Data name="E">
+            <value>6.0E-4</value>
+          </Data>
+          <Data name="HRMS">
+            <value>0.0036</value>
+          </Data>
+          <Data name="VRMS">
+            <value>0.009</value>
+          </Data>
+          <Data name="PDOP">
+            <value>0.8</value>
+          </Data>
+          <Data name="HDOP">
+            <value>0.7</value>
+          </Data>
+          <Data name="VDOP">
+            <value>0.7</value>
+          </Data>
+          <Data name="Base ID">
+            <value>11.0</value>
+          </Data>
+          <Data name="Base Latitude">
+            <value>1.3457911388888888</value>
+          </Data>
+          <Data name="Base Longitude">
+            <value>103.67997686111111</value>
+          </Data>
+          <Data name="Base Altitude">
+            <value>76.2458</value>
+          </Data>
+          <Data name="Distance to Ref">
+            <value>840.6687</value>
+          </Data>
+          <Data name="Inclination correction">
+            <value>Not Set</value>
+          </Data>
+          <Data name="Pitch">
+            <value>0.0</value>
+          </Data>
+          <Data name="Roll">
+            <value>0.0</value>
+          </Data>
+          <Data name="Yaw">
+            <value>0.0</value>
+          </Data>
+          <Data name="Inclined angle">
+            <value>0°0000.0000</value>
+          </Data>
+          <Data name="Projected angle">
+            <value>0°0000.0000</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            103.6818768,1.353136,0
+          </coordinates>
+        </Point>
+      </Placemark>
+    </Folder>
+  </Document>
+</kml>

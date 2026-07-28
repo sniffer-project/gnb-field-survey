@@ -1,6 +1,6 @@
-"""Find campaigns under a data root by pairing survey exports with sightings.
+"""Find surveys under a data root by pairing MapPro exports with sightings.
 
-A campaign is one directory under ``map-pro-csv/``; its name is the directory
+A survey is one directory under ``surveys/``; its name is the directory
 name. Its sightings workbook is whatever ``<name>*.xlsx`` sits anywhere under
 the same data root -- the binoc directory's own name describes one day's field
 conditions and must never be assumed.
@@ -23,11 +23,11 @@ _LOCK_PREFIX = "~$"
 
 
 @dataclass(frozen=True)
-class CampaignFiles:
-    """One solvable campaign: where its two input files are."""
+class SurveyFiles:
+    """One survey on disk: where its input files are."""
 
     name: str
-    survey: Path
+    mappro: Path          # the preferred MapPro CSV export
     binoc: Path
     export_count: int
 
@@ -36,7 +36,7 @@ class CampaignFiles:
 class DiscoveryResult:
     """What a scan found, and what it deliberately could not use."""
 
-    campaigns: tuple[CampaignFiles, ...]
+    surveys: tuple[SurveyFiles, ...]
     unavailable: tuple[tuple[str, str], ...]  # (name, reason)
 
 
@@ -56,13 +56,13 @@ def _find_binoc(data_root: Path, name: str) -> Path | None:
     return matches[0] if matches else None
 
 
-def discover_campaigns(data_root: Path) -> DiscoveryResult:
-    """Scan a data root, newest campaign first."""
+def discover_surveys(data_root: Path) -> DiscoveryResult:
+    """Scan a data root, newest survey first."""
     survey_root = Path(data_root) / SURVEY_SUBDIR
     if not survey_root.is_dir():
-        return DiscoveryResult(campaigns=(), unavailable=())
+        return DiscoveryResult(surveys=(), unavailable=())
 
-    campaigns: list[CampaignFiles] = []
+    surveys: list[SurveyFiles] = []
     unavailable: list[tuple[str, str]] = []
     folders = sorted(
         (d for d in survey_root.iterdir() if d.is_dir()),
@@ -80,12 +80,12 @@ def discover_campaigns(data_root: Path) -> DiscoveryResult:
                 (folder.name, f"no '{folder.name}*.xlsx' sightings workbook found")
             )
             continue
-        campaigns.append(
-            CampaignFiles(
+        surveys.append(
+            SurveyFiles(
                 name=folder.name,
-                survey=_preferred_export(exports),
+                mappro=_preferred_export(exports),
                 binoc=binoc,
                 export_count=len(exports),
             )
         )
-    return DiscoveryResult(tuple(campaigns), tuple(unavailable))
+    return DiscoveryResult(tuple(surveys), tuple(unavailable))

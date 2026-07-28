@@ -20,7 +20,7 @@ _M_PER_DEG_LAT = 110574.0
 
 def _solution(**overrides) -> Solution:
     base = dict(
-        campaign_name="20260716",
+        survey_name="20260716",
         latitude=_LAT,
         longitude=_LON,
         altitude_m=74.7,

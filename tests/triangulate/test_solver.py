@@ -5,8 +5,8 @@ import math
 import numpy as np
 
 from gnb_survey.triangulate import geo
-from gnb_survey.triangulate.models import Campaign, SurveyPoint
-from gnb_survey.triangulate.solver import solve_campaign
+from gnb_survey.triangulate.models import Survey, SurveyPoint
+from gnb_survey.triangulate.solver import solve_survey
 
 # A realistic Hall-14-like cluster of survey points (lat, lon, alt).
 _POINT_COORDS = [
@@ -19,7 +19,7 @@ _POINT_COORDS = [
 
 
 def _synthesise(true_lat, true_lon, true_alt, noise_d=0.0, noise_e=0.0, seed=0):
-    """Build a Campaign whose readings point exactly (+noise) at a known gNB."""
+    """Build a Survey whose readings point exactly (+noise) at a known gNB."""
     rng = np.random.default_rng(seed)
     origin = geo.make_origin(true_lat, true_lon, true_alt)
     gx, gy, gz = geo.to_enu(true_lat, true_lon, true_alt, origin)
@@ -34,13 +34,13 @@ def _synthesise(true_lat, true_lon, true_alt, noise_d=0.0, noise_e=0.0, seed=0):
         slant += rng.normal(0.0, noise_d)
         elev += rng.normal(0.0, noise_e)
         points.append(SurveyPoint(label, lat, lon, alt, elev, slant))
-    return Campaign("synthetic", tuple(points))
+    return Survey("synthetic", tuple(points))
 
 
 def test_recovers_noise_free_truth():
     true = (1.353150, 103.681700, 51.0)
-    campaign = _synthesise(*true)
-    sol = solve_campaign(campaign)
+    survey = _synthesise(*true)
+    sol = solve_survey(survey)
 
     origin = geo.make_origin(*true)
     e, n, _ = geo.to_enu(sol.latitude, sol.longitude, sol.altitude_m, origin)
@@ -54,8 +54,8 @@ def test_reported_sigma_brackets_error_under_noise():
     within = 0
     trials = 30
     for seed in range(trials):
-        campaign = _synthesise(*true, noise_d=1.0, noise_e=0.3, seed=seed)
-        sol = solve_campaign(campaign)
+        survey = _synthesise(*true, noise_d=1.0, noise_e=0.3, seed=seed)
+        sol = solve_survey(survey)
         origin = geo.make_origin(*true)
         e, n, _ = geo.to_enu(sol.latitude, sol.longitude, sol.altitude_m, origin)
         err = math.hypot(e, n)
@@ -68,7 +68,7 @@ def test_reported_sigma_brackets_error_under_noise():
 
 
 def test_solution_carries_per_point_residuals():
-    sol = solve_campaign(_synthesise(1.353150, 103.681700, 51.0))
+    sol = solve_survey(_synthesise(1.353150, 103.681700, 51.0))
     assert len(sol.residuals) == len(_POINT_COORDS)
     # Noise-free fit -> residuals essentially zero.
     assert max(abs(r.distance_residual_m) for r in sol.residuals) < 0.05

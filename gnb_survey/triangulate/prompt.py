@@ -1,4 +1,4 @@
-"""Ask which campaign to solve.
+"""Ask which survey to solve.
 
 Every stream is injected, so the whole flow is exercised in tests without a
 terminal. Nothing here touches the filesystem except to check that a typed
@@ -10,7 +10,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Callable
 
-from .discovery import CampaignFiles, DiscoveryResult
+from .discovery import SurveyFiles, DiscoveryResult
 
 InputFn = Callable[[str], str]
 OutputFn = Callable[[str], None]
@@ -18,20 +18,20 @@ OutputFn = Callable[[str], None]
 _MANUAL_KEY = "m"
 
 
-def select_campaign(
+def select_survey(
     result: DiscoveryResult,
     *,
     input_fn: InputFn,
     output_fn: OutputFn,
-) -> CampaignFiles | None:
-    """Return the chosen campaign, or None if the user aborted."""
+) -> SurveyFiles | None:
+    """Return the chosen survey, or None if the user aborted."""
     output_fn("")
-    output_fn("  Campaigns found:")
+    output_fn("  Surveys found:")
     output_fn("")
-    for index, campaign in enumerate(result.campaigns, start=1):
+    for index, survey in enumerate(result.surveys, start=1):
         output_fn(
-            f"    {index}) {campaign.name}   {campaign.export_count} export format(s)"
-            f" · binoc: {campaign.binoc.name}"
+            f"    {index}) {survey.name}   {survey.export_count} export format(s)"
+            f" · binoc: {survey.binoc.name}"
         )
     for name, reason in result.unavailable:
         output_fn(f"       {name}   unavailable: {reason}")
@@ -47,8 +47,8 @@ def select_campaign(
             answer = "1"
         if answer.lower() == _MANUAL_KEY:
             return _manual_entry(input_fn, output_fn)
-        if answer.isdigit() and 1 <= int(answer) <= len(result.campaigns):
-            return result.campaigns[int(answer) - 1]
+        if answer.isdigit() and 1 <= int(answer) <= len(result.surveys):
+            return result.surveys[int(answer) - 1]
         output_fn(f"  Not a choice: {answer!r}")
 
 
@@ -70,16 +70,16 @@ def _ask_for_file(label: str, input_fn: InputFn, output_fn: OutputFn) -> Path | 
         output_fn(f"  Not a file: {path}")
 
 
-def _manual_entry(input_fn: InputFn, output_fn: OutputFn) -> CampaignFiles | None:
-    survey = _ask_for_file("Survey CSV", input_fn, output_fn)
-    if survey is None:
+def _manual_entry(input_fn: InputFn, output_fn: OutputFn) -> SurveyFiles | None:
+    mappro = _ask_for_file("MapPro CSV", input_fn, output_fn)
+    if mappro is None:
         return None
     binoc = _ask_for_file("Sightings workbook", input_fn, output_fn)
     if binoc is None:
         return None
-    return CampaignFiles(
-        name=survey.parent.name,
-        survey=survey,
+    return SurveyFiles(
+        name=mappro.parent.name,
+        mappro=mappro,
         binoc=binoc,
         export_count=1,
     )

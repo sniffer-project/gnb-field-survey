@@ -18,7 +18,7 @@ import csv
 from pathlib import Path
 
 from .coords import CoordinateFormat, UnknownCoordinateFormat, detect_format, parse_coordinate
-from .errors import CampaignDataError
+from .errors import SurveyDataError
 from .models import Station
 
 _REQUIRED = ("Point Name", "Latitude", "Longitude", "Altitude")
@@ -49,7 +49,7 @@ def _optional_float(row: dict[str, str], column: str) -> float | None:
 def _required_float(row: dict[str, str], column: str, name: str, path: Path) -> float:
     value = _optional_float(row, column)
     if value is None:
-        raise CampaignDataError(f"{path.name}: {name} has no readable '{column}'")
+        raise SurveyDataError(f"{path.name}: {name} has no readable '{column}'")
     return value
 
 
@@ -60,7 +60,7 @@ def _check_altitude_datum(row: dict[str, str], name: str, ground: float, path: P
     if original is None or antenna is None:
         return antenna
     if abs((original - ground) - antenna) > _ALTITUDE_TOLERANCE_M:
-        raise CampaignDataError(
+        raise SurveyDataError(
             f"{path.name}: {name} has Original Altitude {original:.4f} m and "
             f"Altitude {ground:.4f} m, a gap of {original - ground:.4f} m, but "
             f"Antenna Height says {antenna:.4f} m. The altitude columns are "
@@ -78,17 +78,17 @@ def read_stations(csv_path: str | Path) -> tuple[Station, ...]:
         try:
             headers = _clean_headers(next(reader))
         except StopIteration:
-            raise CampaignDataError(f"{path.name}: file is empty") from None
+            raise SurveyDataError(f"{path.name}: file is empty") from None
         rows = [dict(zip(headers, line)) for line in reader if any(c.strip() for c in line)]
 
     missing = [c for c in _REQUIRED if c not in headers]
     if missing:
-        raise CampaignDataError(
+        raise SurveyDataError(
             f"{path.name}: missing required column(s): {', '.join(missing)}. "
             "Export with MapPro's 'Survey point data format (csv)'."
         )
     if not rows:
-        raise CampaignDataError(f"{path.name}: no data rows")
+        raise SurveyDataError(f"{path.name}: no data rows")
 
     has_ne = _NORTHING in headers and _EASTING in headers
     try:
@@ -102,7 +102,7 @@ def read_stations(csv_path: str | Path) -> tuple[Station, ...]:
             for r in rows
         )
     except UnknownCoordinateFormat as exc:
-        raise CampaignDataError(f"{path.name}: {exc}") from None
+        raise SurveyDataError(f"{path.name}: {exc}") from None
 
     return tuple(_station(row, fmt, path) for row in rows)
 
@@ -110,12 +110,12 @@ def read_stations(csv_path: str | Path) -> tuple[Station, ...]:
 def _station(row: dict[str, str], fmt: CoordinateFormat, path: Path) -> Station:
     name = (row.get("Point Name") or "").strip()
     if not name:
-        raise CampaignDataError(f"{path.name}: a row has no Point Name")
+        raise SurveyDataError(f"{path.name}: a row has no Point Name")
 
     latitude = parse_coordinate(row.get("Latitude"), fmt)
     longitude = parse_coordinate(row.get("Longitude"), fmt)
     if latitude is None or longitude is None:
-        raise CampaignDataError(
+        raise SurveyDataError(
             f"{path.name}: {name} has unreadable coordinates "
             f"({row.get('Latitude')!r}, {row.get('Longitude')!r}) as {fmt.value}"
         )

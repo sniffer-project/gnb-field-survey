@@ -1,4 +1,4 @@
-"""The report states the assumed model and what the campaign's data implies."""
+"""The report states the assumed model and what the survey's data implies."""
 
 import pytest
 
@@ -8,7 +8,7 @@ from gnb_survey.triangulate.report import format_solution
 
 def _solution(**overrides) -> Solution:
     base = dict(
-        campaign_name="20260716",
+        survey_name="20260716",
         latitude=1.3555437,
         longitude=103.6937797,
         altitude_m=74.7,
@@ -52,7 +52,7 @@ def test_no_model_check_line_when_the_fit_was_skipped():
 
 
 @pytest.mark.unit
-def test_campaign_name_and_position_still_render():
+def test_survey_name_and_position_still_render():
     text = format_solution(_solution())
     assert "20260716 gNB" in text
     assert "1.3555437" in text

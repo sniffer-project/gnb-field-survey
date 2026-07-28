@@ -1,4 +1,4 @@
-"""The CLI resolves inputs from arguments, a named campaign, or a prompt."""
+"""The CLI resolves inputs from arguments, a named survey, or a prompt."""
 
 from pathlib import Path
 
@@ -42,21 +42,21 @@ def _run(argv, **kwargs):
 
 
 @pytest.mark.unit
-def test_list_prints_campaigns_and_exits_zero(data_root):
+def test_list_prints_surveys_and_exits_zero(data_root):
     code, text = _run(["--list", "--data-root", str(data_root)])
     assert code == 0
     assert "20260716" in text
 
 
 @pytest.mark.unit
-def test_campaign_by_name_solves_without_prompting(data_root):
+def test_survey_by_name_solves_without_prompting(data_root):
     code, text = _run(["20260716", "--data-root", str(data_root)])
     assert code == 0
     assert "20260716 gNB" in text
 
 
 @pytest.mark.unit
-def test_unknown_campaign_lists_what_was_found(data_root):
+def test_unknown_survey_lists_what_was_found(data_root):
     code, text = _run(["19990101", "--data-root", str(data_root)])
     assert code == 1
     assert "20260716" in text
@@ -72,7 +72,7 @@ def test_explicit_paths_are_named_after_the_parent_folder(data_root):
 
 
 @pytest.mark.unit
-def test_name_option_overrides_the_campaign_name(data_root):
+def test_name_option_overrides_the_survey_name(data_root):
     code, text = _run(["20260716", "--data-root", str(data_root), "--name", "Cetran"])
     assert code == 0
     assert "Cetran gNB" in text
@@ -89,14 +89,14 @@ def test_missing_explicit_path_errors_rather_than_prompting(data_root):
 def test_non_interactive_refuses_to_prompt(data_root):
     code, text = _run(["--data-root", str(data_root), "--non-interactive"])
     assert code == 1
-    assert "campaign name" in text
+    assert "survey name" in text
 
 
 @pytest.mark.unit
 def test_not_a_terminal_refuses_to_prompt(data_root):
     code, text = _run(["--data-root", str(data_root)], is_tty=False)
     assert code == 1
-    assert "campaign name" in text
+    assert "survey name" in text
 
 
 @pytest.mark.unit
@@ -121,7 +121,7 @@ def test_aborting_the_prompt_exits_without_a_traceback(data_root):
 
 
 @pytest.mark.unit
-def test_no_campaigns_found_names_the_expected_layout(tmp_path):
+def test_no_surveys_found_names_the_expected_layout(tmp_path):
     code, text = _run(["--data-root", str(tmp_path), "--list"])
     assert code == 1
     assert "surveys" in text
@@ -153,7 +153,7 @@ def test_sigma_overrides_reach_the_report(data_root):
 
 
 @pytest.mark.integration
-def test_real_campaign_end_to_end():
+def test_real_survey_end_to_end():
     if not FIXTURES.is_dir():
         pytest.skip("fixtures data not present")
     code, text = _run(["20260716", "--data-root", str(FIXTURES)])
@@ -246,7 +246,7 @@ def test_explicit_csv_into_a_missing_directory_still_errors(data_root, tmp_path,
 
 
 @pytest.mark.unit
-def test_bare_name_selects_a_campaign(data_root, tmp_path, monkeypatch):
+def test_bare_name_selects_a_survey(data_root, tmp_path, monkeypatch):
     monkeypatch.setattr(cli, "_DEFAULT_OUTPUT_DIR", tmp_path / "out")
     code, text = _run(["20260716", "--data-root", str(data_root)])
     assert code == 0
@@ -255,7 +255,7 @@ def test_bare_name_selects_a_campaign(data_root, tmp_path, monkeypatch):
 
 @pytest.mark.unit
 def test_a_lone_file_path_asks_for_the_second_file(data_root, tmp_path, monkeypatch):
-    """A single argument that is a file is a half-typed command, not a campaign."""
+    """A single argument that is a file is a half-typed command, not a survey."""
     monkeypatch.setattr(cli, "_DEFAULT_OUTPUT_DIR", tmp_path / "out")
     survey = data_root / "surveys" / "20260716" / "mappro" / "dd (Decimal).csv"
     code, text = _run([str(survey), "--data-root", str(data_root)])
@@ -264,7 +264,7 @@ def test_a_lone_file_path_asks_for_the_second_file(data_root, tmp_path, monkeypa
 
 
 @pytest.mark.unit
-def test_campaign_flag_is_gone(data_root, tmp_path, monkeypatch):
+def test_survey_flag_is_gone(data_root, tmp_path, monkeypatch):
     monkeypatch.setattr(cli, "_DEFAULT_OUTPUT_DIR", tmp_path / "out")
     with pytest.raises(SystemExit):
-        _run(["--campaign", "20260716", "--data-root", str(data_root)])
+        _run(["--survey", "20260716", "--data-root", str(data_root)])

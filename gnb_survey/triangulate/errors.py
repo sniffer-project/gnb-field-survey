@@ -8,5 +8,5 @@ and the point, never a silently dropped row.
 from __future__ import annotations
 
 
-class CampaignDataError(ValueError):
+class SurveyDataError(ValueError):
     """An input file is malformed, internally inconsistent, or contradicts its pair."""

@@ -67,8 +67,8 @@ class SurveyPoint:
 
 
 @dataclass(frozen=True)
-class Campaign:
-    """One measurement campaign = one gNB observed from several points."""
+class Survey:
+    """One measurement survey = one gNB observed from several points."""
 
     name: str
     points: tuple[SurveyPoint, ...]
@@ -85,9 +85,9 @@ class PointResidual:
 
 @dataclass(frozen=True)
 class Solution:
-    """Result of triangulating one campaign's gNB."""
+    """Result of triangulating one survey's gNB."""
 
-    campaign_name: str
+    survey_name: str
     latitude: float
     longitude: float
     altitude_m: float
@@ -104,9 +104,9 @@ class Solution:
     # The measurement model that was actually used...
     assumed_sigma_distance_m: float | None = None
     assumed_sigma_elevation_deg: float | None = None
-    # ...beside what this campaign's own residuals imply. Reported only: these
+    # ...beside what this survey's own residuals imply. Reported only: these
     # are never fed back into the solve, because a fit from a handful of points
-    # is far too noisy to weight the next campaign with.
+    # is far too noisy to weight the next survey with.
     fitted_sigma_distance_m: float | None = None
     fitted_sigma_elevation_deg: float | None = None
     # Compass bearing of the major axis, degrees in [0, 180): 0 is north-south,

@@ -7,7 +7,7 @@ import openpyxl
 import pytest
 
 from gnb_survey.triangulate.binoc import read_binoc_readings
-from gnb_survey.triangulate.campaign import CampaignDataError, build_campaign
+from gnb_survey.triangulate.assemble import SurveyDataError, build_survey
 from gnb_survey.triangulate.mappro import read_stations
 
 FIXTURES = Path(__file__).resolve().parents[1] / "fixtures"
@@ -81,7 +81,7 @@ def test_rejects_csv_whose_altitude_columns_are_inconsistent(tmp_path):
         + _ROWS.split("\n", 1)[1],
         encoding="latin-1",
     )
-    with pytest.raises(CampaignDataError, match="Original Altitude"):
+    with pytest.raises(SurveyDataError, match="Original Altitude"):
         read_stations(bad)
 
 
@@ -89,7 +89,7 @@ def test_rejects_csv_whose_altitude_columns_are_inconsistent(tmp_path):
 def test_rejects_csv_missing_required_columns(tmp_path):
     bad = tmp_path / "bad.csv"
     bad.write_text("Point Name,Latitude\nPt1,1.3\n", encoding="latin-1")
-    with pytest.raises(CampaignDataError, match="column"):
+    with pytest.raises(SurveyDataError, match="column"):
         read_stations(bad)
 
 
@@ -146,21 +146,21 @@ def test_binoc_duplicate_point_name_is_rejected(tmp_path):
         tmp_path / "dupe.xlsx",
         [("pt4", 54.6, 46, 2.08), ("pt4", 46.6, 58, 1.94)],
     )
-    with pytest.raises(CampaignDataError, match="pt4"):
+    with pytest.raises(SurveyDataError, match="pt4"):
         read_binoc_readings(path)
 
 
 @pytest.mark.unit
 def test_binoc_rejects_out_of_range_angle(tmp_path):
     path = _write_binoc(tmp_path / "bad.xlsx", [("pt1", 49.4, 950, 2.06)])
-    with pytest.raises(CampaignDataError, match="angle"):
+    with pytest.raises(SurveyDataError, match="angle"):
         read_binoc_readings(path)
 
 
 @pytest.mark.unit
 def test_binoc_rejects_nonpositive_distance(tmp_path):
     path = _write_binoc(tmp_path / "bad.xlsx", [("pt1", 0, 51, 2.06)])
-    with pytest.raises(CampaignDataError, match="distance"):
+    with pytest.raises(SurveyDataError, match="distance"):
         read_binoc_readings(path)
 
 
@@ -169,12 +169,12 @@ def test_binoc_rejects_nonpositive_distance(tmp_path):
 
 @pytest.mark.unit
 def test_join_adds_binoc_height_to_ground_altitude(survey_csv, binoc_xlsx):
-    campaign = build_campaign(
+    survey = build_survey(
         read_stations(survey_csv), read_binoc_readings(binoc_xlsx), name="Cetran"
     )
-    assert campaign.name == "Cetran"
-    assert len(campaign.points) == 3
-    pt1 = campaign.points[0]
+    assert survey.name == "Cetran"
+    assert len(survey.points) == 3
+    pt1 = survey.points[0]
     assert pt1.altitude_m == pytest.approx(32.5729 + 2.06)  # ground + binoc height
     assert pt1.distance_m == pytest.approx(49.4)
     assert pt1.elevation_deg == pytest.approx(51)
@@ -182,25 +182,25 @@ def test_join_adds_binoc_height_to_ground_altitude(survey_csv, binoc_xlsx):
 
 @pytest.mark.unit
 def test_join_matches_point_names_case_insensitively(survey_csv, binoc_xlsx):
-    campaign = build_campaign(
+    survey = build_survey(
         read_stations(survey_csv), read_binoc_readings(binoc_xlsx), name="x"
     )
-    assert [p.label for p in campaign.points] == ["Pt1", "Pt2", "Pt3"]
+    assert [p.label for p in survey.points] == ["Pt1", "Pt2", "Pt3"]
 
 
 @pytest.mark.unit
 def test_join_rejects_reading_with_no_surveyed_station(survey_csv, tmp_path):
     """Guards the mislabelled pt7/pt8 class of error."""
     binoc = _write_binoc(tmp_path / "b.xlsx", [("pt1", 49.4, 51, 2.06), ("pt9", 67.9, 36, 1.89)])
-    with pytest.raises(CampaignDataError, match="pt9"):
-        build_campaign(read_stations(survey_csv), read_binoc_readings(binoc), name="x")
+    with pytest.raises(SurveyDataError, match="pt9"):
+        build_survey(read_stations(survey_csv), read_binoc_readings(binoc), name="x")
 
 
 @pytest.mark.unit
 def test_join_needs_at_least_three_points(survey_csv, tmp_path):
     binoc = _write_binoc(tmp_path / "b.xlsx", [("pt1", 49.4, 51, 2.06), ("pt2", 54.0, 46, 2.08)])
-    with pytest.raises(CampaignDataError, match="at least 3"):
-        build_campaign(read_stations(survey_csv), read_binoc_readings(binoc), name="x")
+    with pytest.raises(SurveyDataError, match="at least 3"):
+        build_survey(read_stations(survey_csv), read_binoc_readings(binoc), name="x")
 
 
 @pytest.mark.unit
@@ -217,5 +217,5 @@ def test_surveyed_stations_without_a_binoc_reading_are_simply_unused(survey_csv,
         tmp_path / "b.xlsx",
         [("pt1", 49.4, 51, 2.06), ("pt2", 54.0, 46, 2.08), ("pt3", 54.6, 46, 2.08)],
     )
-    campaign = build_campaign(read_stations(wide), read_binoc_readings(binoc), name="x")
-    assert len(campaign.points) == 3
+    survey = build_survey(read_stations(wide), read_binoc_readings(binoc), name="x")
+    assert len(survey.points) == 3

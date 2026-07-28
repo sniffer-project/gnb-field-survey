@@ -47,12 +47,12 @@ _GNB_CODE = "gNB"
 _RING_CODE = "ellipse95"
 
 
-def default_csv_name(campaign_name: str) -> str:
-    """File name for a campaign's export, e.g. '20260716_gnb.csv'.
+def default_csv_name(survey_name: str) -> str:
+    """File name for a survey's export, e.g. '20260716_gnb.csv'.
 
     Spaces become underscores so the result is safe to type unquoted.
     """
-    safe = "_".join(str(campaign_name).split())
+    safe = "_".join(str(survey_name).split())
     return f"{safe}_gnb.csv"
 
 
@@ -112,7 +112,7 @@ def write_csv(sol: Solution, path: str | Path) -> int:
 
     rows = [
         _row(
-            f"{sol.campaign_name} gNB",
+            f"{sol.survey_name} gNB",
             _GNB_CODE,
             sol.latitude,
             sol.longitude,
@@ -124,7 +124,7 @@ def write_csv(sol: Solution, path: str | Path) -> int:
     for index, (lat, lon) in enumerate(ring, start=1):
         rows.append(
             _row(
-                f"{sol.campaign_name} {CONFIDENCE_LABEL} ring {index:02d}",
+                f"{sol.survey_name} {CONFIDENCE_LABEL} ring {index:02d}",
                 _RING_CODE,
                 lat,
                 lon,

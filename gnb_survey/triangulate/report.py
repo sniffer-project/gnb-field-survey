@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from .models import CONDITION_WARN_THRESHOLD, Solution
 
-# Flag the model when the campaign's own fit is more than this far from the
+# Flag the model when the survey's own fit is more than this far from the
 # assumed sigma in either direction. Only the ratio of the two sigmas affects
 # the solution, so this is a check on relative weighting, not absolute scale.
 MODEL_CHECK_FACTOR = 2.0
@@ -30,7 +30,7 @@ def _model_check(sol: Solution) -> str | None:
     verdict = "<-- CHECK" if off else "ok"
     return (
         f"  Model check: assumed σ {sol.assumed_sigma_distance_m:.2f} m / "
-        f"{sol.assumed_sigma_elevation_deg:.2f}°  ·  this campaign fits "
+        f"{sol.assumed_sigma_elevation_deg:.2f}°  ·  this survey fits "
         f"{sol.fitted_sigma_distance_m:.2f} m / "
         f"{sol.fitted_sigma_elevation_deg:.2f}°   {verdict}"
     )
@@ -38,7 +38,7 @@ def _model_check(sol: Solution) -> str | None:
 
 def format_solution(sol: Solution) -> str:
     lines: list[str] = []
-    lines.append(f"=== {sol.campaign_name} gNB ===")
+    lines.append(f"=== {sol.survey_name} gNB ===")
     lines.append(f"  Position : {sol.latitude:.7f}, {sol.longitude:.7f}   alt {sol.altitude_m:.1f} m")
     if sol.svy21_easting is not None and sol.svy21_northing is not None:
         lines.append(

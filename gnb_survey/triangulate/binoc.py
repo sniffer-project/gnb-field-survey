@@ -13,7 +13,7 @@ from pathlib import Path
 
 import openpyxl
 
-from .errors import CampaignDataError
+from .errors import SurveyDataError
 from .models import BinocReading
 
 # Header text varies ("viewfiner" is a real typo in the sheet), so columns are
@@ -30,7 +30,7 @@ _MAX_INSTRUMENT_HEIGHT_M = 3.0
 def _column_index(headers: list[str], keyword: str, path: Path) -> int:
     matches = [i for i, h in enumerate(headers) if keyword in h]
     if not matches:
-        raise CampaignDataError(
+        raise SurveyDataError(
             f"{path.name}: no column mentioning '{keyword}'. Found: "
             f"{', '.join(h or '<blank>' for h in headers)}"
         )
@@ -41,7 +41,7 @@ def _number(value: object, field: str, point: str, path: Path) -> float:
     try:
         return float(value)  # type: ignore[arg-type]
     except (TypeError, ValueError):
-        raise CampaignDataError(
+        raise SurveyDataError(
             f"{path.name}: {point} has a non-numeric {field}: {value!r}"
         ) from None
 
@@ -52,7 +52,7 @@ def read_binoc_readings(xlsx_path: str | Path) -> tuple[BinocReading, ...]:
     workbook = openpyxl.load_workbook(path, data_only=True)
     rows = [r for r in workbook.worksheets[0].iter_rows(values_only=True) if any(r)]
     if not rows:
-        raise CampaignDataError(f"{path.name}: sheet is empty")
+        raise SurveyDataError(f"{path.name}: sheet is empty")
 
     headers = [str(c).strip().lower() if c is not None else "" for c in rows[0]]
     name_col = _column_index(headers, _NAME_KEY, path)
@@ -69,7 +69,7 @@ def read_binoc_readings(xlsx_path: str | Path) -> tuple[BinocReading, ...]:
         name = str(raw_name).strip()
         key = name.lower()
         if key in seen:
-            raise CampaignDataError(
+            raise SurveyDataError(
                 f"{path.name}: '{name}' appears twice (rows {seen[key]} and "
                 f"{line_no}). Each point may be sighted once -- fix the label "
                 "in the source workbook."
@@ -81,13 +81,13 @@ def read_binoc_readings(xlsx_path: str | Path) -> tuple[BinocReading, ...]:
         height = _number(row[height_col], "instrument height", name, path)
 
         if distance <= 0:
-            raise CampaignDataError(f"{path.name}: {name} has distance {distance} m; must be > 0")
+            raise SurveyDataError(f"{path.name}: {name} has distance {distance} m; must be > 0")
         if not 0.0 < angle < _MAX_ANGLE_DEG:
-            raise CampaignDataError(
+            raise SurveyDataError(
                 f"{path.name}: {name} has angle {angle}deg; expected 0-{_MAX_ANGLE_DEG:g}"
             )
         if not 0.0 < height <= _MAX_INSTRUMENT_HEIGHT_M:
-            raise CampaignDataError(
+            raise SurveyDataError(
                 f"{path.name}: {name} has binocular height {height} m; "
                 f"expected 0-{_MAX_INSTRUMENT_HEIGHT_M:g}"
             )
@@ -102,5 +102,5 @@ def read_binoc_readings(xlsx_path: str | Path) -> tuple[BinocReading, ...]:
         )
 
     if not readings:
-        raise CampaignDataError(f"{path.name}: no sightings found")
+        raise SurveyDataError(f"{path.name}: no sightings found")
     return tuple(readings)

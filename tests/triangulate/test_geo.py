@@ -2,7 +2,7 @@
 
 import math
 
-from gnb_triangulate import geo
+from gnb_survey.triangulate import geo
 
 
 def test_enu_roundtrip_sub_millimetre():

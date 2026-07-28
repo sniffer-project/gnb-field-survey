@@ -1,6 +1,6 @@
 """A 3Blue1Brown-style explainer of the gNB triangulation pipeline.
 
-Renders the real ``Hall 14`` campaign geometry (solved by ``gnb_triangulate``)
+Renders the real ``Hall 14`` campaign geometry (solved by ``gnb_survey.triangulate``)
 as a top-down East-North story:
 
     survey points  ->  range rings (no bearing!)  ->  the two-basin ambiguity

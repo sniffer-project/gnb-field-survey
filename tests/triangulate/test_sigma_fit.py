@@ -4,9 +4,9 @@ import math
 
 import pytest
 
-from gnb_triangulate import geo
-from gnb_triangulate.models import Campaign, SurveyPoint
-from gnb_triangulate.solver import SIGMA_DISTANCE_M, SIGMA_ELEVATION_DEG, solve_campaign
+from gnb_survey.triangulate import geo
+from gnb_survey.triangulate.models import Campaign, SurveyPoint
+from gnb_survey.triangulate.solver import SIGMA_DISTANCE_M, SIGMA_ELEVATION_DEG, solve_campaign
 
 # A gNB 40 m up and off to one side, seen from four spread points.
 #

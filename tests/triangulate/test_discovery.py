@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from gnb_triangulate.discovery import CampaignFiles, discover_campaigns
+from gnb_survey.triangulate.discovery import CampaignFiles, discover_campaigns
 
 
 def _campaign(root: Path, name: str, exports: tuple[str, ...], binoc: bool = True) -> None:

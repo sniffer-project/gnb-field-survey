@@ -2,8 +2,8 @@
 
 import pytest
 
-from gnb_triangulate.models import PointResidual, Solution
-from gnb_triangulate.report import format_solution
+from gnb_survey.triangulate.models import PointResidual, Solution
+from gnb_survey.triangulate.report import format_solution
 
 
 def _solution(**overrides) -> Solution:

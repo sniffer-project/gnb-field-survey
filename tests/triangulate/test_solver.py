@@ -4,9 +4,9 @@ import math
 
 import numpy as np
 
-from gnb_triangulate import geo
-from gnb_triangulate.models import Campaign, SurveyPoint
-from gnb_triangulate.solver import solve_campaign
+from gnb_survey.triangulate import geo
+from gnb_survey.triangulate.models import Campaign, SurveyPoint
+from gnb_survey.triangulate.solver import solve_campaign
 
 # A realistic Hall-14-like cluster of survey points (lat, lon, alt).
 _POINT_COORDS = [

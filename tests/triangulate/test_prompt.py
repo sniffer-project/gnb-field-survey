@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from gnb_triangulate.discovery import CampaignFiles, DiscoveryResult
-from gnb_triangulate.prompt import select_campaign
+from gnb_survey.triangulate.discovery import CampaignFiles, DiscoveryResult
+from gnb_survey.triangulate.prompt import select_campaign
 
 
 def _result(tmp_path) -> DiscoveryResult:

@@ -26,20 +26,20 @@ import sys
 from pathlib import Path
 from typing import Callable
 
-from gnb_triangulate import solver
-from gnb_triangulate.binoc import read_binoc_readings
-from gnb_triangulate.campaign import CampaignDataError, build_campaign
-from gnb_triangulate.discovery import (
+from gnb_survey.triangulate import solver
+from gnb_survey.triangulate.binoc import read_binoc_readings
+from gnb_survey.triangulate.campaign import CampaignDataError, build_campaign
+from gnb_survey.triangulate.discovery import (
     SURVEY_SUBDIR,
     CampaignFiles,
     DiscoveryResult,
     discover_campaigns,
 )
-from gnb_triangulate.mappro import read_stations
-from gnb_triangulate.mymaps import default_csv_name, write_csv
-from gnb_triangulate.prompt import select_campaign
-from gnb_triangulate.report import format_solution
-from gnb_triangulate.solver import solve_campaign
+from gnb_survey.triangulate.mappro import read_stations
+from gnb_survey.triangulate.mymaps import default_csv_name, write_csv
+from gnb_survey.triangulate.prompt import select_campaign
+from gnb_survey.triangulate.report import format_solution
+from gnb_survey.triangulate.solver import solve_campaign
 
 _DEFAULT_DATA_ROOT = Path(__file__).resolve().parent / "data" / "raw"
 # Generated output lives outside raw data/, which stays purely raw.

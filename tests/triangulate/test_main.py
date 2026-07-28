@@ -176,7 +176,7 @@ def test_csv_flag_writes_the_file(data_root, tmp_path):
 def test_csv_has_the_gnb_and_a_full_ring(data_root, tmp_path):
     import csv as _csv
 
-    from gnb_triangulate.mymaps import RING_POINTS
+    from gnb_survey.triangulate.mymaps import RING_POINTS
 
     out = tmp_path / "gnb.csv"
     _run(["20260716", "--data-root", str(data_root), "--csv", str(out)])

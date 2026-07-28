@@ -121,8 +121,10 @@ def _resolve(
             if not path.is_file():
                 return f"error: {label} not found: {path}"
         # Arguments are a contract: never silently fall back to prompting.
+        parent_name = survey.parent.name
+        name = survey.parent.parent.name if parent_name in ("mappro", "map_pro") else parent_name
         return CampaignFiles(
-            name=survey.parent.name, survey=survey, binoc=args.binoc, export_count=1
+            name=name, survey=survey, binoc=args.binoc, export_count=1
         )
 
     if args.target is not None:

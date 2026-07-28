@@ -72,8 +72,8 @@ def test_real_campaign_azimuth_is_reported():
     if not fixtures.is_dir():
         pytest.skip("fixtures not present")
     real = build_campaign(
-        read_stations(fixtures / "surveys" / "20260716" / "20260716_dd (Decimal).csv"),
-        read_binoc_readings(fixtures / "surveys" / "20260716" / "20260716_measurment_binoc.xlsx"),
+        read_stations(fixtures / "surveys" / "20260716" / "mappro" / "20260716_dd (Decimal).csv"),
+        read_binoc_readings(fixtures / "surveys" / "20260716" / "binoc" / "20260716_measurment_binoc.xlsx"),
         name="20260716",
     )
     solution = solve_campaign(real)

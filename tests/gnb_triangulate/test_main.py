@@ -22,7 +22,7 @@ _ROWS = (
 
 @pytest.fixture()
 def data_root(tmp_path) -> Path:
-    folder = tmp_path / "surveys" / "20260716"
+    folder = tmp_path / "surveys" / "20260716" / "mappro"
     folder.mkdir(parents=True)
     (folder / "dd (Decimal).csv").write_text(_HEADER + _ROWS, encoding="latin-1")
 
@@ -64,7 +64,7 @@ def test_unknown_campaign_lists_what_was_found(data_root):
 
 @pytest.mark.unit
 def test_explicit_paths_are_named_after_the_parent_folder(data_root):
-    survey = data_root / "surveys" / "20260716" / "dd (Decimal).csv"
+    survey = data_root / "surveys" / "20260716" / "mappro" / "dd (Decimal).csv"
     binoc = data_root / "20260716_measurment_binoc.xlsx"
     code, text = _run([str(survey), str(binoc)])
     assert code == 0
@@ -257,7 +257,7 @@ def test_bare_name_selects_a_campaign(data_root, tmp_path, monkeypatch):
 def test_a_lone_file_path_asks_for_the_second_file(data_root, tmp_path, monkeypatch):
     """A single argument that is a file is a half-typed command, not a campaign."""
     monkeypatch.setattr(cli, "_DEFAULT_OUTPUT_DIR", tmp_path / "out")
-    survey = data_root / "surveys" / "20260716" / "dd (Decimal).csv"
+    survey = data_root / "surveys" / "20260716" / "mappro" / "dd (Decimal).csv"
     code, text = _run([str(survey), "--data-root", str(data_root)])
     assert code == 1
     assert "both" in text

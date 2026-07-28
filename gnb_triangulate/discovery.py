@@ -70,7 +70,7 @@ def discover_campaigns(data_root: Path) -> DiscoveryResult:
         reverse=True,
     )
     for folder in folders:
-        exports = _usable(list(folder.glob("*.csv")))
+        exports = _usable(list(folder.rglob("*.csv")))
         if not exports:
             unavailable.append((folder.name, "no .csv exports in the survey folder"))
             continue

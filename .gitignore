@@ -27,7 +27,6 @@ env/
 Thumbs.db
 
 # Build outputs
-output/
 data/output/
 
 # LaTeX build artifacts

@@ -18,7 +18,7 @@ This repository provides a unified pipeline (`survey.py`) for processing field s
 # Install (from a Python 3.10+ interpreter)
 python3.13 -m venv .venv
 source .venv/bin/activate
-pip install -e .              # add ".[animation]" for the ManimGL scenes
+pip install -e ".[animation]"  # or `pip install -e .` for core only without ManimGL
 
 # What can each survey do?
 python survey.py --list

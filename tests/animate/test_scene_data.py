@@ -108,3 +108,31 @@ def test_a_stale_schema_is_refused(tmp_path):
 
     with pytest.raises(ValueError, match="schema"):
         scene_data.load_scene(path)
+
+
+@pytest.mark.parametrize(
+    ("field", "malformed", "message"),
+    [
+        ("schema", True, "schema"),
+        ("srls_seed_en", [], "srls_seed_en"),
+        (
+            "ellipse",
+            {"major_m": 4.36, "azimuth_deg": 118.2},
+            r"ellipse\.minor_m",
+        ),
+        ("points", [], "points"),
+        ("points", [{"label": "Pt1", "e": 0.0}], r"points\[0\]\.n"),
+        ("gnb_en", [1.0], "gnb_en"),
+        ("gnb_en", [10**400, 0.0], "gnb_en"),
+    ],
+)
+def test_a_malformed_schema_one_scene_is_refused(
+    tmp_path, field, malformed, message
+):
+    data = scene_data.build_scene(_SURVEY, _SOLUTION)
+    data[field] = malformed
+    path = tmp_path / "malformed.json"
+    path.write_text(json.dumps(data), encoding="utf-8")
+
+    with pytest.raises(ValueError, match=message):
+        scene_data.load_scene(path)

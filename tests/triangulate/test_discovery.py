@@ -1,9 +1,12 @@
 """Discovery pairs each survey folder with its sightings workbook."""
 
+import dataclasses
+import json
 from pathlib import Path
 
 import pytest
 
+from gnb_survey.cli.capability import animate_blocked
 from gnb_survey.cli import dispatch
 from gnb_survey.triangulate.discovery import SurveyFiles, discover_surveys
 
@@ -139,3 +142,35 @@ def test_a_solved_survey_is_rediscovered_with_its_scene_json(tmp_path):
     assert code == 0
     found = next(s for s in result.surveys if s.name == "20260716")
     assert found.scene_json == output_dir / "20260716_scene.json"
+
+
+@pytest.mark.integration
+def test_a_custom_report_name_keeps_the_stable_scene_identity(tmp_path):
+    fixtures = Path(__file__).resolve().parents[1] / "fixtures"
+    output_dir = tmp_path / "output"
+
+    code = dispatch.main(
+        [
+            "survey.py",
+            "20260716",
+            "solve",
+            "--name",
+            "Cetran",
+            "--data-root",
+            str(fixtures),
+            "--output-dir",
+            str(output_dir),
+        ],
+        output_fn=lambda _: None,
+        is_tty=False,
+    )
+    result = discover_surveys(fixtures, output_dir)
+
+    assert code == 0
+    found = next(s for s in result.surveys if s.name == "20260716")
+    assert found.scene_json == output_dir / "20260716_scene.json"
+    scene = json.loads(found.scene_json.read_text(encoding="utf-8"))
+    assert scene["survey"] == "Cetran"
+
+    archived = dataclasses.replace(found, binoc=None)
+    assert animate_blocked(archived, manim_available=True) is None

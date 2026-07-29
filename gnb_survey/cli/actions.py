@@ -75,7 +75,7 @@ def do_solve(
             return 1
         output_fn(f"  Wrote {rows} rows to {destination}")
 
-    scene_path = output_dir / f"{survey.name}_scene.json"
+    scene_path = output_dir / f"{files.name}_scene.json"
     scene_data.write_scene(survey, solution, scene_path)
     output_fn(f"  Wrote scene data to {scene_path}")
     return 0
@@ -89,8 +89,7 @@ def do_animate(
     output_fn: OutputFn,
 ) -> int:
     """Render the animation, solving first if no scene data exists yet."""
-    scene_name = args.name or files.name
-    scene_path = output_dir / f"{scene_name}_scene.json"
+    scene_path = output_dir / f"{files.name}_scene.json"
     if not scene_path.is_file():
         output_fn(f"  No scene data for {files.name}; solving first.")
         code = do_solve(files, args, output_dir=output_dir, output_fn=output_fn)

@@ -18,8 +18,7 @@ from ..triangulate import geo
 from ..triangulate.models import Solution, Survey
 from ..triangulate.report import format_solution
 from ..triangulate.srls import srls_position
-
-SCHEMA: int = 1
+from .scene_schema import SCHEMA, load_scene as _load_validated_scene
 
 
 def _srls_seed(
@@ -96,11 +95,4 @@ def write_scene(survey: Survey, solution: Solution, path: Path) -> Path:
 
 def load_scene(path: Path) -> dict[str, Any]:
     """Read scene data, refusing anything this version cannot draw correctly."""
-    data = json.loads(Path(path).read_text(encoding="utf-8"))
-    found = data.get("schema")
-    if found != SCHEMA:
-        raise ValueError(
-            f"{path} has scene schema {found!r}, expected {SCHEMA}. "
-            "Re-run `python survey.py <name> solve` to regenerate it."
-        )
-    return data
+    return _load_validated_scene(path)

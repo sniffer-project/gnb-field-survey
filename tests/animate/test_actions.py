@@ -9,7 +9,7 @@ from gnb_survey.cli import actions
 from gnb_survey.triangulate.discovery import SurveyFiles
 
 
-def test_animate_with_a_report_name_renders_the_scene_that_solve_wrote(
+def test_animate_with_a_report_name_uses_the_stable_survey_scene_path(
     tmp_path: Path, monkeypatch
 ) -> None:
     files = SurveyFiles(
@@ -26,7 +26,7 @@ def test_animate_with_a_report_name_renders_the_scene_that_solve_wrote(
     rendered: dict[str, Path] = {}
 
     def fake_solve(*_args, output_dir, **_kwargs):
-        (output_dir / "Cetran_scene.json").write_text("{}", encoding="utf-8")
+        (output_dir / "20260716_scene.json").write_text("{}", encoding="utf-8")
         return 0
 
     def fake_render(**kwargs):
@@ -44,4 +44,4 @@ def test_animate_with_a_report_name_renders_the_scene_that_solve_wrote(
     )
 
     assert code == 0
-    assert rendered["scene_json"] == tmp_path / "Cetran_scene.json"
+    assert rendered["scene_json"] == tmp_path / "20260716_scene.json"

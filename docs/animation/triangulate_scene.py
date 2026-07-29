@@ -25,36 +25,41 @@ the picture is faithful rather than illustrative.
 
 from __future__ import annotations
 
-import json
 import os
+import sys
+from pathlib import Path
 
 import numpy as np
 
-from manimlib import *
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(_PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PROJECT_ROOT))
 
 # --- Scene data ---------------------------------------------------------------
 # gnb_survey.animate.runner sets GNB_SCENE_JSON to one survey's solved geometry.
 # Unset, the real Hall 14 numbers below are used, so this file still renders
 # standalone as documentation.
+from gnb_survey.animate.scene_schema import (
+    SCHEMA as SCENE_SCHEMA,
+    load_scene as _read_scene,
+)
+
 SCENE_ENV = "GNB_SCENE_JSON"
-SCENE_SCHEMA = 1
 
 
 def _load_scene():
     path = os.environ.get(SCENE_ENV)
     if not path:
         return None
-    with open(path, encoding="utf-8") as handle:
-        data = json.load(handle)
-    if data.get("schema") != SCENE_SCHEMA:
-        raise SystemExit(
-            f"{path} has scene schema {data.get('schema')!r}, expected "
-            f"{SCENE_SCHEMA}. Re-run `python survey.py <name> solve`."
-        )
-    return data
+    try:
+        return _read_scene(Path(path))
+    except (OSError, ValueError) as exc:
+        raise SystemExit(f"Cannot load animation scene data: {exc}") from exc
 
 
 _SCENE = _load_scene()
+
+from manimlib import *
 
 if _SCENE is None:
     # Real solved geometry (Hall 14), local ENU metres.

@@ -61,10 +61,12 @@ and refuses stale schemas.
 the existing unconditional `output_dir.mkdir(...)`, and always writes:
 
 ```text
-<output_dir>/<survey.name>_scene.json
+<output_dir>/<files.name>_scene.json
 ```
 
-with the required `Wrote scene data to ...` message.
+with the required `Wrote scene data to ...` message. The discovered folder
+name is the stable filesystem identity; `survey.name` remains the custom
+display/report name stored inside the JSON.
 
 I added an integration test to `tests/triangulate/test_discovery.py`. It runs a
 real fixture solve through `dispatch.main`, calls
@@ -118,7 +120,7 @@ Final GREEN:
 8 passed in 0.01s
 ```
 
-### Independent review fix — `animate --name`
+### Initial independent review fix — `animate --name` (superseded)
 
 Independent review found that `do_solve` correctly wrote
 `<args.name>_scene.json` when `--name` was supplied, while `do_animate` still
@@ -138,6 +140,79 @@ expected Cetran_scene.json, got 20260716_scene.json
 ```text
 1 passed in 0.56s
 ```
+
+A later code-quality review correctly found that making both sides custom was
+still incomplete: discovery only knows the stable folder name. The second
+review loop below replaces this initial fix with stable source identity.
+
+### Code-quality review loop — stable identity and schema validation
+
+Review after commit `20fe755` returned two Important issues.
+
+**Stable identity.** Added/updated focused coverage for:
+
+- solve with `--name Cetran` writing `20260716_scene.json`;
+- JSON retaining `"survey": "Cetran"` for display/reporting;
+- rediscovery populating `scene_json`;
+- capability allowing animation after the workbook is archived;
+- `do_animate --name Cetran` rendering that same stable path.
+
+RED:
+
+```text
+2 failed in 0.76s
+rendered Cetran_scene.json instead of 20260716_scene.json
+rediscovery returned scene_json=None
+```
+
+The minimal fix keys both writer and render lookup to `files.name`. GREEN:
+
+```text
+2 passed in 0.64s
+```
+
+This intentionally deviates from the brief's literal
+`<survey.name>_scene.json` wording. A custom `--name` is presentation metadata,
+not durable source identity. If it controls the filename, discovery cannot
+find the scene later and an archived workbook makes animation unavailable.
+
+**Malformed schema-1 JSON.** Added a standard-library-only shared validator at
+`gnb_survey/animate/scene_schema.py`. It validates every field consumed by the
+scene: required top-level fields; origin; point objects and numeric values;
+two-number gNB/seed vectors (or `None` seed); ellipse fields with nullable
+numeric azimuth; and string result lines. It also rejects boolean schema
+values, non-finite numbers, empty points, malformed JSON, and stale schemas
+with actionable regeneration guidance.
+
+The first RED captured four malformed schema-1 payloads being accepted and
+the standalone scene reaching `ModuleNotFoundError: manimlib` before it could
+validate:
+
+```text
+5 failed in 0.29s
+```
+
+Two additional edge regressions (boolean schema and empty points) were each
+observed RED:
+
+```text
+2 failed in 0.24s
+```
+
+`scene_data.load_scene` delegates to this one validator. The standalone scene
+resolves the project root from `__file__`, imports the shared stdlib loader,
+loads at import time, and converts `OSError`/`ValueError` into a clear
+`SystemExit` before importing `manimlib`. No divergent validation logic and no
+ManimGL dependency were introduced. GREEN:
+
+```text
+7 passed in 0.21s
+```
+
+Final self-review found that converting an extremely large JSON integer to
+`float` could raise a raw `OverflowError`. A focused large-vector-component
+regression reproduced that error RED, then passed after `_number` mapped
+overflow to the same actionable field-specific `ValueError`.
 
 ### Steps 9–10 — scene environment and ellipse orientation
 
@@ -164,9 +239,10 @@ The exact AST command from the brief returned:
 parses
 ```
 
-The file was deliberately not imported: its `from manimlib import *` cannot
-run without ManimGL, and the brief explicitly forbids importing/executing it
-in that state.
+The valid scene was not imported because `manimlib` is unavailable. The new
+invalid-data regression safely executes only the pre-Manim prefix: shared
+validation raises `SystemExit` before `from manimlib import *`. This proves
+bad input gets a clear field-specific error without requiring ManimGL.
 
 I separately parsed `af8bbd0:docs/animation/triangulate_scene.py` and the
 working scene, evaluated the six Hall 14 assignments, and compared them
@@ -236,14 +312,28 @@ I separately called the real `gnb_survey.animate.scene_data.load_scene` on
 that file (`load_scene OK: 20260716 6 points`) and on a temporary schema-0
 file, which raised the required `ValueError` with regeneration guidance.
 
+The review-loop E2E used a custom display name:
+
+```text
+.venv/bin/python survey.py 20260716 solve --name Cetran
+Wrote 37 rows to .../data/output/Cetran_gnb.csv
+Wrote scene data to .../data/output/20260716_scene.json
+stable scene identity OK: 20260716 -> 20260716_scene.json display Cetran
+```
+
+Rediscovery found that stable file, and
+`animate_blocked(dataclasses.replace(found, binoc=None),
+manim_available=True)` returned `None`.
+
 ### Step 13 — tests and count reconciliation
 
 Focused seam/discovery/stdlib-guard verification:
 
 ```text
 .venv/bin/python -m pytest tests/animate \
-  tests/triangulate/test_discovery.py tests/test_convert_is_stdlib_only.py -v
-34 passed in 0.45s
+  tests/triangulate/test_discovery.py tests/cli/test_capability.py \
+  tests/test_convert_is_stdlib_only.py -q
+51 passed in 0.70s
 ```
 
 This explicitly confirms that `gnb_survey/convert/` remains stdlib-only and
@@ -253,7 +343,7 @@ Full suite:
 
 ```text
 .venv/bin/python -m pytest -q
-192 passed in 1.64s
+201 passed in 1.42s
 ```
 
 Count reconciliation from Task 6's exact baseline:
@@ -265,29 +355,38 @@ Count reconciliation from Task 6's exact baseline:
 | +8 | runner items (the quality test parametrizes to four items) |
 | +1 | required writer/discovery integration |
 | +1 | independent-review regression for `animate --name` |
-| **192** | final total |
+| +1 | custom-name discovery/archive-capability regression |
+| +7 | malformed schema-1 validation items |
+| +1 | standalone pre-Manim validation regression |
+| **201** | final total |
 
 The plan's “roughly 190” note omitted the required discovery integration item;
-independent review then added one regression item.
+two review loops then added ten regression items.
 No old test was removed or weakened.
 
 Additional checks passed: `compileall`, `git diff --check`, and a source grep
-confirmed no `print()` in `gnb_survey/animate` or `cli/actions.py`.
+confirmed no `print()` in `gnb_survey/animate` or `cli/actions.py`. Importing
+`scene_schema` under `.venv/bin/python -S -E` also passed, proving the shared
+validator itself is standard-library-only. An independent review of the
+complete follow-up diff returned no findings and separately passed all 201
+tests.
 
 ### Step 14 — commit
 
-The task is committed once with the required conventional message. See the
-commit recorded in the final handoff.
+The task's feature commit is `20fe755`. The code-quality review fixes are in a
+separate conventional follow-up commit; the original commit was not amended.
 
 ---
 
 ## Files changed
 
 - `gnb_survey/animate/scene_data.py`
+- `gnb_survey/animate/scene_schema.py`
 - `gnb_survey/animate/runner.py`
 - `gnb_survey/cli/actions.py`
 - `docs/animation/triangulate_scene.py`
 - `tests/animate/test_scene_data.py`
+- `tests/animate/test_scene_script.py`
 - `tests/animate/test_runner.py`
 - `tests/animate/test_actions.py`
 - `tests/triangulate/test_discovery.py`
@@ -310,3 +409,6 @@ commit recorded in the final handoff.
   survey azimuth. The parent explicitly ruled to retain Step 10: this is the
   intended approximation, while generated schema-1 JSON uses the authoritative
   non-null solved azimuth.
+- The stable scene filename intentionally uses the discovered folder name
+  rather than the brief's literal `survey.name`, because `--name` must remain
+  display metadata if rediscovery and archived-workbook animation are to work.

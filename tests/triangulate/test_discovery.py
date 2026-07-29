@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from gnb_survey.cli import dispatch
 from gnb_survey.triangulate.discovery import SurveyFiles, discover_surveys
 
 
@@ -113,3 +114,28 @@ def test_finds_the_real_survey():
     assert found.export_count == 9
     assert found.mappro.name.endswith("dd (Decimal).csv")
     assert not found.binoc.name.startswith("~$")
+
+
+@pytest.mark.integration
+def test_a_solved_survey_is_rediscovered_with_its_scene_json(tmp_path):
+    fixtures = Path(__file__).resolve().parents[1] / "fixtures"
+    output_dir = tmp_path / "output"
+
+    code = dispatch.main(
+        [
+            "survey.py",
+            "20260716",
+            "solve",
+            "--data-root",
+            str(fixtures),
+            "--output-dir",
+            str(output_dir),
+        ],
+        output_fn=lambda _: None,
+        is_tty=False,
+    )
+    result = discover_surveys(fixtures, output_dir)
+
+    assert code == 0
+    found = next(s for s in result.surveys if s.name == "20260716")
+    assert found.scene_json == output_dir / "20260716_scene.json"

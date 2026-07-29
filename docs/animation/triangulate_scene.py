@@ -25,30 +25,76 @@ the picture is faithful rather than illustrative.
 
 from __future__ import annotations
 
+import json
+import os
+
 import numpy as np
 
 from manimlib import *
 
-# --- Real solved geometry (Hall 14), local ENU metres --------------------------
-# (label, East, North, slant_distance_m, elevation_deg)
-SURVEY = [
-    ("S1", 0.00, 0.00, 82.3, 17.0),
-    ("S2", -8.81, 12.39, 98.2, 17.0),
-    ("S3", 11.59, 27.27, 97.8, 16.0),
-    ("S4", 21.30, 31.82, 95.5, 18.0),
-    ("S?", 4.12, 22.41, 97.5, 17.0),   # "Sniffer optional"
-    ("UE", 6.35, 4.06, 80.9, 18.0),
-]
-SRLS_SEED_EN = (61.23, -54.76)        # closed-form global seed (E, N)
-GNB_EN = (61.58, -50.34)              # refined gNB position (E, N)
-ELLIPSE_MAJOR_M = 4.36                # 1-sigma semi-axes
-ELLIPSE_MINOR_M = 0.73
-RESULT_LINES = [
-    "lat  1.3524001°",
-    "lon  103.6822124°",
-    "alt  52.9 m",
-    "SVY21  11183.6 E,  37167.6 N",
-]
+# --- Scene data ---------------------------------------------------------------
+# gnb_survey.animate.runner sets GNB_SCENE_JSON to one survey's solved geometry.
+# Unset, the real Hall 14 numbers below are used, so this file still renders
+# standalone as documentation.
+SCENE_ENV = "GNB_SCENE_JSON"
+SCENE_SCHEMA = 1
+
+
+def _load_scene():
+    path = os.environ.get(SCENE_ENV)
+    if not path:
+        return None
+    with open(path, encoding="utf-8") as handle:
+        data = json.load(handle)
+    if data.get("schema") != SCENE_SCHEMA:
+        raise SystemExit(
+            f"{path} has scene schema {data.get('schema')!r}, expected "
+            f"{SCENE_SCHEMA}. Re-run `python survey.py <name> solve`."
+        )
+    return data
+
+
+_SCENE = _load_scene()
+
+if _SCENE is None:
+    # Real solved geometry (Hall 14), local ENU metres.
+    # (label, East, North, slant_distance_m, elevation_deg)
+    SURVEY = [
+        ("S1", 0.00, 0.00, 82.3, 17.0),
+        ("S2", -8.81, 12.39, 98.2, 17.0),
+        ("S3", 11.59, 27.27, 97.8, 16.0),
+        ("S4", 21.30, 31.82, 95.5, 18.0),
+        ("S?", 4.12, 22.41, 97.5, 17.0),   # "Sniffer optional"
+        ("UE", 6.35, 4.06, 80.9, 18.0),
+    ]
+    SRLS_SEED_EN = (61.23, -54.76)        # closed-form global seed (E, N)
+    GNB_EN = (61.58, -50.34)              # refined gNB position (E, N)
+    ELLIPSE_MAJOR_M = 4.36                # 1-sigma semi-axes
+    ELLIPSE_MINOR_M = 0.73
+    ELLIPSE_AZIMUTH_DEG = None
+    RESULT_LINES = [
+        "lat  1.3524001°",
+        "lon  103.6822124°",
+        "alt  52.9 m",
+        "SVY21  11183.6 E,  37167.6 N",
+    ]
+    SURVEY_NAME = "Hall 14"
+else:
+    SURVEY = [
+        (p["label"], p["e"], p["n"], p["dist_m"], p["elev_deg"])
+        for p in _SCENE["points"]
+    ]
+    seed = _SCENE.get("srls_seed_en")
+    # None when SR-LS was degenerate and the solver fell back to a multi-start.
+    # The seed beat then starts from the final fix, which is honest: there was
+    # no closed-form seed to show.
+    SRLS_SEED_EN = tuple(seed) if seed else tuple(_SCENE["gnb_en"])
+    GNB_EN = tuple(_SCENE["gnb_en"])
+    ELLIPSE_MAJOR_M = _SCENE["ellipse"]["major_m"]
+    ELLIPSE_MINOR_M = _SCENE["ellipse"]["minor_m"]
+    ELLIPSE_AZIMUTH_DEG = _SCENE["ellipse"]["azimuth_deg"]
+    RESULT_LINES = _SCENE["result_lines"]
+    SURVEY_NAME = _SCENE["survey"]
 
 # Colours (3b1b palette).
 C_POINT = BLUE_B
@@ -265,11 +311,16 @@ class GnbTriangulation(Scene):
 
     def error_ellipse(self, axes):
         self.set_caption("Jacobian -> covariance -> 1σ error ellipse")
-        # Major axis is the weak (azimuthal) direction: perpendicular to the
-        # cluster-to-gNB line of position.
-        centroid = np.mean([[e, n] for _, e, n, *_ in SURVEY], axis=0)
-        los = np.array(GNB_EN) - centroid
-        ang = np.arctan2(los[1], los[0]) + np.pi / 2
+        if ELLIPSE_AZIMUTH_DEG is None:
+            # No solved azimuth: fall back to the centroid->gNB line of sight,
+            # which is roughly the major axis for a fan of range-only fixes.
+            centroid = np.mean([[e, n] for _, e, n, *_ in SURVEY], axis=0)
+            los = np.array(GNB_EN) - centroid
+            ang = np.arctan2(los[1], los[0])
+        else:
+            # Solution.ellipse_azimuth_deg is a compass bearing (0 = north),
+            # while manim rotates anticlockwise from +x (east).
+            ang = np.radians(90.0 - ELLIPSE_AZIMUTH_DEG)
 
         ell = Ellipse(
             width=2 * ELLIPSE_MAJOR_M * self.u,

@@ -2,8 +2,8 @@
   "schema": 1,
   "survey": "20260716",
   "origin": {
-    "lat": 1.35579855,
-    "lon": 103.69391447,
+    "lat": 1.3557985555555556,
+    "lon": 103.69391447222222,
     "alt_m": 34.6329
   },
   "points": [
@@ -16,39 +16,66 @@
     },
     {
       "label": "Pt2",
-      "e": -4.5105,
-      "n": 6.1612,
+      "e": -4.5103,
+      "n": 6.1615,
       "dist_m": 54.0,
       "elev_deg": 46.0
     },
     {
       "label": "Pt3",
-      "e": -15.3801,
-      "n": 9.0483,
+      "e": -15.3795,
+      "n": 9.0487,
       "dist_m": 54.6,
       "elev_deg": 46.0
+    },
+    {
+      "label": "Pt4",
+      "e": -11.472,
+      "n": -1.9381,
+      "dist_m": 46.6,
+      "elev_deg": 58.0
+    },
+    {
+      "label": "Pt8",
+      "e": -18.2853,
+      "n": 23.3528,
+      "dist_m": 67.9,
+      "elev_deg": 36.0
+    },
+    {
+      "label": "Pt7",
+      "e": -16.4212,
+      "n": 15.1088,
+      "dist_m": 56.6,
+      "elev_deg": 43.0
     }
   ],
   "gnb_en": [
-    -14.6682,
-    -28.7864
+    -15.0009,
+    -28.1751
   ],
-  "srls_seed_en": null,
+  "srls_seed_en": [
+    -25.5416,
+    -43.49
+  ],
   "ellipse": {
-    "major_m": 3.762844000170444,
-    "minor_m": 0.8407285115174671,
-    "azimuth_deg": 104.86950907093801
+    "major_m": 3.153424452995282,
+    "minor_m": 0.682204346988339,
+    "azimuth_deg": 98.7272521839829
   },
   "result_lines": [
     "=== 20260716 gNB ===",
-    "  Position : 1.3555382, 103.6937827   alt 74.5 m",
-    "  SVY21    : E 12471.2  N 37514.5  (EPSG:3414)",
-    "  Uncertainty (1\u03c3): horiz \u00b13.9 m (ellipse 3.8\u00d70.8 m), vert \u00b10.9 m",
-    "  Geometry : OK (cond 33)   seed: azimuth-multistart",
-    "  Model check: assumed \u03c3 2.00 m / 1.40\u00b0  \u00b7  this survey fits 2.21 m / 0.88\u00b0   ok",
+    "  Position : 1.3555438, 103.6937797   alt 74.7 m",
+    "  SVY21    : E 12470.9  N 37515.1  (EPSG:3414)",
+    "  Uncertainty (1\u03c3): horiz \u00b13.2 m (ellipse 3.2\u00d70.7 m), vert \u00b10.7 m",
+    "  Geometry : OK (cond 34)   seed: srls",
+    "  Model check: assumed \u03c3 2.00 m / 1.40\u00b0  \u00b7  this survey fits 1.94 m / 1.43\u00b0   ok",
     "  Residuals:",
-    "    Pt1                    dist  +2.0 m   elev +0.0\u00b0   <-- largest",
-    "    Pt2                    dist  -0.8 m   elev +0.9\u00b0",
-    "    Pt3                    dist  -1.1 m   elev -1.0\u00b0"
+    "    Pt1                    dist  +1.8 m   elev +0.4\u00b0",
+    "    Pt2                    dist  -1.0 m   elev +1.3\u00b0",
+    "    Pt3                    dist  -1.4 m   elev -0.4\u00b0",
+    "    Pt4                    dist  +1.4 m   elev -1.5\u00b0",
+    "    Pt8                    dist  -2.7 m   elev +1.6\u00b0   <-- largest",
+    "    Pt7                    dist  +1.3 m   elev -1.4\u00b0"
   ]
 }

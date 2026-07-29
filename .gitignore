@@ -37,7 +37,3 @@ data/output/
 *.out
 *.toc
 *.synctex.gz
-
-# Antigravity working dirs
-antigravity/
-.worktrees/

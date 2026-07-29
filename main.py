@@ -38,7 +38,7 @@ from gnb_survey.triangulate.discovery import (
 )
 from gnb_survey.triangulate.mappro import read_stations
 from gnb_survey.triangulate.mymaps import default_csv_name, write_csv
-from gnb_survey.triangulate.prompt import select_survey
+from gnb_survey.cli.menu import select_survey
 from gnb_survey.triangulate.report import format_solution
 from gnb_survey.triangulate.solver import solve_survey
 

@@ -4,8 +4,9 @@ from pathlib import Path
 
 import pytest
 
+from gnb_survey.cli import menu
+from gnb_survey.cli.menu import select_survey
 from gnb_survey.triangulate.discovery import SurveyFiles, DiscoveryResult
-from gnb_survey.triangulate.prompt import select_survey
 
 
 def _result(tmp_path) -> DiscoveryResult:
@@ -118,3 +119,49 @@ def test_eof_aborts_cleanly(tmp_path):
     assert select_survey(
         _result(tmp_path), input_fn=_Answers(), output_fn=lambda _: None
     ) is None
+
+
+def test_verb_menu_shows_a_blocked_verb_with_its_reason():
+    lines: list[str] = []
+    files = SurveyFiles(
+        name="20260722",
+        mappro=Path("/p/m.csv"),
+        exports=(Path("/p/m.csv"),),
+        binoc=None,
+        scene_json=None,
+    )
+
+    chosen = menu.select_verb(
+        files,
+        input_fn=lambda _: "1",
+        output_fn=lines.append,
+        manim_available=True,
+    )
+
+    assert chosen == "convert"
+    listing = "\n".join(lines)
+    assert "Solve the gNB position" in listing
+    assert "20260722*.xlsx" in listing
+
+
+def test_verb_menu_refuses_to_pick_a_blocked_verb():
+    """Typing the number of a blocked verb must not run it."""
+    answers = iter(["2", "b"])
+    lines: list[str] = []
+    files = SurveyFiles(
+        name="20260722",
+        mappro=Path("/p/m.csv"),
+        exports=(Path("/p/m.csv"),),
+        binoc=None,
+        scene_json=None,
+    )
+
+    chosen = menu.select_verb(
+        files,
+        input_fn=lambda _: next(answers),
+        output_fn=lines.append,
+        manim_available=True,
+    )
+
+    assert chosen is None
+    assert any("To fix:" in line for line in lines)

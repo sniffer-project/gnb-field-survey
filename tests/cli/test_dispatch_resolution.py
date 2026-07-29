@@ -5,7 +5,9 @@ from pathlib import Path
 import openpyxl
 import pytest
 
-import main as cli
+from gnb_survey.cli import actions
+from gnb_survey.cli import dispatch as cli
+from gnb_survey.triangulate.discovery import SurveyFiles
 
 FIXTURES = Path(__file__).resolve().parents[1] / "fixtures"
 
@@ -50,8 +52,15 @@ def data_root_without_binoc(tmp_path) -> Path:
 
 
 def _run(argv, **kwargs):
+    """Run the CLI with no terminal unless a test asks for one.
+
+    `main` falls back to sys.stdin.isatty(), which is False under pytest's
+    capture but True under `pytest -s`. Pinning it here keeps a suite run
+    from blocking on the verb menu's `input()`.
+    """
+    kwargs.setdefault("is_tty", False)
     lines: list[str] = []
-    code = cli.main(["main.py", *argv], output_fn=lines.append, **kwargs)
+    code = cli.main(["survey.py", *argv], output_fn=lines.append, **kwargs)
     return code, "\n".join(lines)
 
 
@@ -106,10 +115,63 @@ def test_prompted_survey_without_a_workbook_errors_instead_of_crashing(
 
 
 @pytest.mark.unit
+def test_prompted_solve_is_refused_when_the_workbook_is_missing(
+    data_root_without_binoc,
+):
+    """Same regression again, driven all the way to choosing `solve`.
+
+    Answering "" to both menus backs out before any verb runs, so that path
+    alone would still pass with the capability gate removed. Here the user
+    picks the survey, then picks solve (2), and only then backs out -- so it
+    is the refusal, not the abort, that is asserted.
+    """
+    answers = iter(["", "2", "b"])
+    code, text = _run(
+        ["--data-root", str(data_root_without_binoc)],
+        is_tty=True,
+        input_fn=lambda _: next(answers),
+    )
+    assert code == 1
+    assert "solve is unavailable" in text
+    assert "20260722" in text
+    assert "xlsx" in text
+
+
+@pytest.mark.unit
+def test_do_solve_refuses_a_survey_with_no_workbook(tmp_path):
+    """The other half of the guard, reached by calling the action directly.
+
+    `main` gates every verb through blocked_for, but do_solve is public and
+    do_animate calls it, so it must refuse a binoc-less survey on its own
+    rather than reaching read_binoc_readings(None).
+    """
+    mappro = tmp_path / "m.csv"
+    files = SurveyFiles(
+        name="20260722",
+        mappro=mappro,
+        exports=(mappro,),
+        binoc=None,
+        scene_json=None,
+    )
+    lines: list[str] = []
+
+    code = actions.do_solve(
+        files,
+        cli._parse_args(["survey.py"]),
+        output_dir=tmp_path / "out",
+        output_fn=lines.append,
+    )
+
+    assert code == 1
+    assert "no sightings workbook" in "\n".join(lines)
+    assert not (tmp_path / "out").exists()
+
+
+@pytest.mark.unit
 def test_explicit_paths_are_named_after_the_parent_folder(data_root):
     survey = data_root / "surveys" / "20260716" / "mappro" / "dd (Decimal).csv"
     binoc = data_root / "20260716_measurment_binoc.xlsx"
-    code, text = _run([str(survey), str(binoc)])
+    code, text = _run(["solve", str(survey), str(binoc)])
     assert code == 0
     assert "20260716 gNB" in text
 
@@ -123,14 +185,22 @@ def test_name_option_overrides_the_survey_name(data_root):
 
 @pytest.mark.unit
 def test_missing_explicit_path_errors_rather_than_prompting(data_root):
-    code, text = _run(["/no/such/survey.csv", "/no/such/binoc.xlsx"])
+    code, text = _run(["solve", "/no/such/survey.csv", "/no/such/binoc.xlsx"])
     assert code == 1
-    assert "not found" in text
+    assert "not a file" in text
 
 
 @pytest.mark.unit
 def test_non_interactive_refuses_to_prompt(data_root):
-    code, text = _run(["--data-root", str(data_root), "--non-interactive"])
+    code, text = _run(["--data-root", str(data_root), "--non-interactive"], is_tty=True)
+    assert code == 1
+    assert "survey name" in text
+
+
+@pytest.mark.unit
+def test_no_input_is_the_same_flag_under_its_new_name(data_root):
+    """--non-interactive survives as an alias; --no-input is the primary spelling."""
+    code, text = _run(["--data-root", str(data_root), "--no-input"], is_tty=True)
     assert code == 1
     assert "survey name" in text
 
@@ -144,7 +214,8 @@ def test_not_a_terminal_refuses_to_prompt(data_root):
 
 @pytest.mark.unit
 def test_prompt_is_used_when_attached_to_a_terminal(data_root):
-    answers = iter([""])
+    """Enter takes the first survey, then 2 picks solve from the verb menu."""
+    answers = iter(["", "2"])
     code, text = _run(
         ["--data-root", str(data_root)],
         is_tty=True,
@@ -178,8 +249,11 @@ def test_bad_field_data_ends_the_run_even_when_interactive(data_root):
     sheet.cell(row=4, column=1, value="pt1")  # duplicate of row 2
     workbook.save(data_root / "20260716_measurment_binoc.xlsx")
 
+    answers = iter(["", "2"])
     code, text = _run(
-        ["--data-root", str(data_root)], is_tty=True, input_fn=lambda _: ""
+        ["--data-root", str(data_root)],
+        is_tty=True,
+        input_fn=lambda _: next(answers),
     )
     assert code == 1
     assert "twice" in text
@@ -261,10 +335,11 @@ def test_default_output_directory_is_created_when_absent(data_root, tmp_path, mo
 
 @pytest.mark.unit
 def test_no_csv_suppresses_the_default(data_root, tmp_path, monkeypatch):
+    """The folder itself still appears -- it is where the scene data goes."""
     monkeypatch.setattr(cli, "_DEFAULT_OUTPUT_DIR", tmp_path / "output")
     code, _ = _run(["20260716", "--data-root", str(data_root), "--no-csv"])
     assert code == 0
-    assert not (tmp_path / "output").exists()
+    assert not (tmp_path / "output" / "20260716_gnb.csv").exists()
 
 
 @pytest.mark.unit
@@ -274,7 +349,7 @@ def test_explicit_csv_still_wins_over_the_default(data_root, tmp_path, monkeypat
     code, _ = _run(["20260716", "--data-root", str(data_root), "--csv", str(chosen)])
     assert code == 0
     assert chosen.is_file()
-    assert not (tmp_path / "output").exists()
+    assert not (tmp_path / "output" / "20260716_gnb.csv").exists()
 
 
 @pytest.mark.unit
@@ -297,13 +372,13 @@ def test_bare_name_selects_a_survey(data_root, tmp_path, monkeypatch):
 
 
 @pytest.mark.unit
-def test_a_lone_file_path_asks_for_the_second_file(data_root, tmp_path, monkeypatch):
+def test_a_lone_file_path_says_to_put_the_verb_first(data_root, tmp_path, monkeypatch):
     """A single argument that is a file is a half-typed command, not a survey."""
     monkeypatch.setattr(cli, "_DEFAULT_OUTPUT_DIR", tmp_path / "out")
     survey = data_root / "surveys" / "20260716" / "mappro" / "dd (Decimal).csv"
     code, text = _run([str(survey), "--data-root", str(data_root)])
     assert code == 1
-    assert "both" in text
+    assert "verb first" in text
 
 
 @pytest.mark.unit

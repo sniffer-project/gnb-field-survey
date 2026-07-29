@@ -1,4 +1,4 @@
-"""Ask which survey to solve.
+"""Ask which survey to act on, and what to do with it.
 
 Every stream is injected, so the whole flow is exercised in tests without a
 terminal. Nothing here touches the filesystem except to check that a typed
@@ -10,7 +10,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Callable
 
-from .discovery import SurveyFiles, DiscoveryResult
+from ..triangulate.discovery import SurveyFiles, DiscoveryResult
+from .capability import VERBS, blocked_for
 
 InputFn = Callable[[str], str]
 OutputFn = Callable[[str], None]
@@ -28,11 +29,11 @@ def select_survey(
     output_fn("")
     output_fn("  Surveys found:")
     output_fn("")
-    for index, survey in enumerate(result.surveys, start=1):
-        binoc_desc = survey.binoc.name if survey.binoc is not None else "not yet typed up"
+    for index, files in enumerate(result.surveys, start=1):
+        binoc = files.binoc.name if files.binoc is not None else "-- not yet"
         output_fn(
-            f"    {index}) {survey.name}   {survey.export_count} export format(s)"
-            f" · binoc: {binoc_desc}"
+            f"    {index}) {files.name}   {files.export_count} export format(s)"
+            f" · binoc: {binoc}"
         )
     for name, reason in result.unreadable:
         output_fn(f"       {name}   unreadable: {reason}")
@@ -84,3 +85,57 @@ def _manual_entry(input_fn: InputFn, output_fn: OutputFn) -> SurveyFiles | None:
         exports=(mappro,),
         binoc=binoc,
     )
+
+
+def select_verb(
+    files: SurveyFiles,
+    *,
+    input_fn: InputFn,
+    output_fn: OutputFn,
+    manim_available: bool | None = None,
+) -> str | None:
+    """Ask what to do with `files`. Blocked verbs are listed, not hidden.
+
+    Seeing "solve -- needs 20260722*.xlsx" tells the user what to go and
+    fetch. Omitting the line would leave them wondering whether the tool
+    supports solving at all.
+    """
+    blocks = {
+        verb: blocked_for(verb, files, manim_available=manim_available)
+        for verb in VERBS
+    }
+    output_fn("")
+    output_fn(f"  {files.name}")
+    output_fn("")
+    for index, verb in enumerate(VERBS, start=1):
+        blocked = blocks[verb]
+        if blocked is None:
+            output_fn(f"    {index}) {_VERB_LABELS[verb]}")
+        else:
+            output_fn(f"       {_VERB_LABELS[verb]}   -- {blocked.reason}")
+    output_fn("    b) back")
+    output_fn("")
+
+    while True:
+        try:
+            answer = input_fn("  Select: ").strip().lower()
+        except EOFError:
+            return None
+        if answer in ("b", ""):
+            return None
+        if answer.isdigit() and 1 <= int(answer) <= len(VERBS):
+            verb = VERBS[int(answer) - 1]
+            blocked = blocks[verb]
+            if blocked is None:
+                return verb
+            output_fn(f"  {verb} is unavailable: {blocked.reason}")
+            output_fn(f"  To fix: {blocked.fix}")
+            continue
+        output_fn(f"  Not a choice: {answer!r}")
+
+
+_VERB_LABELS = {
+    "convert": "Convert MapPro exports to My Maps CSV",
+    "solve": "Solve the gNB position",
+    "animate": "Render the animation",
+}

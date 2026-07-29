@@ -4,9 +4,9 @@ import math
 
 import pytest
 
-from gnb_survey.triangulate import geo
-from gnb_survey.triangulate.models import Survey, SurveyPoint
-from gnb_survey.triangulate.solver import solve_survey
+from gnb_survey.trilaterate import geo
+from gnb_survey.trilaterate.models import Survey, SurveyPoint
+from gnb_survey.trilaterate.solver import solve_survey
 
 _ORIGIN_LAT, _ORIGIN_LON, _ORIGIN_ALT = 1.35570, 103.69390, 30.0
 _GNB_ENU = (12.0, 25.0, 40.0)
@@ -64,9 +64,9 @@ def test_major_axis_is_at_least_as_long_as_the_minor(survey):
 def test_real_survey_azimuth_is_reported():
     from pathlib import Path
 
-    from gnb_survey.triangulate.binoc import read_binoc_readings
-    from gnb_survey.triangulate.assemble import build_survey
-    from gnb_survey.triangulate.mappro import read_stations
+    from gnb_survey.trilaterate.binoc import read_binoc_readings
+    from gnb_survey.trilaterate.assemble import build_survey
+    from gnb_survey.trilaterate.mappro import read_stations
 
     fixtures = Path(__file__).resolve().parents[1] / "fixtures"
     if not fixtures.is_dir():

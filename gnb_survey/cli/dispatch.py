@@ -12,8 +12,8 @@ import sys
 from pathlib import Path
 from typing import Callable
 
-from ..triangulate import solver
-from ..triangulate.discovery import (
+from ..trilaterate import solver
+from ..trilaterate.discovery import (
     SURVEY_SUBDIR,
     DiscoveryResult,
     SurveyFiles,

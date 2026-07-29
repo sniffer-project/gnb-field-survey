@@ -10,7 +10,7 @@ from gnb_survey.cli.capability import (
     convert_blocked,
     solve_blocked,
 )
-from gnb_survey.triangulate.discovery import SurveyFiles
+from gnb_survey.trilaterate.discovery import SurveyFiles
 
 _CSV = Path("/p/data/raw/surveys/20260722/mappro/dd (Decimal).csv")
 _XLSX = Path("/p/data/raw/surveys/20260722/binoc/20260722.xlsx")

@@ -326,7 +326,7 @@ residual list, it was not in the binocular workbook.
 ## Advanced settings and tests
 
 The assumed instrument errors are defined near the top of
-`gnb_survey/triangulate/solver.py`:
+`gnb_survey/trilaterate/solver.py`:
 
 ```python
 SIGMA_DISTANCE_M = 2.0
@@ -446,7 +446,7 @@ measurement model.
 ```text
 gnb_survey/
   convert/     MapPro export converter (stdlib-only)
-  triangulate/
+  trilaterate/
     models.py    frozen data models for stations, sightings, surveys, solutions
     errors.py    SurveyDataError, raised for any unusable input
     coords.py    decodes MapPro's nine Lat/Lon formats; detects which one
@@ -463,5 +463,5 @@ gnb_survey/
   animate/     ManimGL scene data builder & runner
   cli/         CLI dispatch, capability checks & menu
 survey.py      command-line entry point
-tests/         convert, triangulate, animate, and cli test suite
+tests/         convert, trilaterate, animate, and cli test suite
 ```

@@ -11,14 +11,14 @@ from gnb_survey.animate import runner
 
 def test_argv_uses_the_documented_flags():
     argv = runner.build_argv(
-        scene_file=Path("/p/docs/animation/triangulate_scene.py"),
+        scene_file=Path("/p/docs/animation/trilaterate_scene.py"),
         scene_name="GnbTrilateration",
         quality="hd",
         video_dir=Path("/p/data/output"),
     )
 
     assert argv[0] == "manimgl"
-    assert argv[1] == "/p/docs/animation/triangulate_scene.py"
+    assert argv[1] == "/p/docs/animation/trilaterate_scene.py"
     assert argv[2] == "GnbTrilateration"
     assert "-w" in argv
     assert "--hd" in argv

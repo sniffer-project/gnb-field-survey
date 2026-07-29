@@ -6,7 +6,7 @@ import pytest
 
 from gnb_survey.cli import menu
 from gnb_survey.cli.menu import select_survey
-from gnb_survey.triangulate.discovery import SurveyFiles, DiscoveryResult
+from gnb_survey.trilaterate.discovery import SurveyFiles, DiscoveryResult
 
 
 def _result(tmp_path) -> DiscoveryResult:

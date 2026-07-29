@@ -8,14 +8,14 @@ from typing import Callable
 
 from ..animate import runner, scene_data
 from ..convert import UnknownFormat, convert, processed_destination
-from ..triangulate.assemble import build_survey
-from ..triangulate.binoc import read_binoc_readings
-from ..triangulate.discovery import SurveyFiles
-from ..triangulate.errors import SurveyDataError
-from ..triangulate.mappro import read_stations
-from ..triangulate.mymaps import default_csv_name, write_csv
-from ..triangulate.report import format_solution
-from ..triangulate.solver import solve_survey
+from ..trilaterate.assemble import build_survey
+from ..trilaterate.binoc import read_binoc_readings
+from ..trilaterate.discovery import SurveyFiles
+from ..trilaterate.errors import SurveyDataError
+from ..trilaterate.mappro import read_stations
+from ..trilaterate.mymaps import default_csv_name, write_csv
+from ..trilaterate.report import format_solution
+from ..trilaterate.solver import solve_survey
 
 OutputFn = Callable[[str], None]
 

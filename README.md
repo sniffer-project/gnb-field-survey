@@ -47,19 +47,19 @@ gnb-field-survey/
 ├── pyproject.toml           # Packaging, dependencies, and pytest configuration
 ├── gnb_survey/              # Core survey package
 │   ├── convert/             # MapPro export converter (stdlib-only)
-│   ├── triangulate/         # 3D gNB trilateration solver
+│   ├── trilaterate/         # 3D gNB trilateration solver
 │   ├── animate/             # ManimGL scene data builder & runner
 │   └── cli/                 # CLI argument parsing, capability checks & menu
 ├── tests/                   # Unified test suite
 │   ├── convert_formats/     # Format detection & decoding tests
 │   ├── convert/             # Writer & destination tests
-│   ├── triangulate/         # Solver, SR-LS & discovery tests
+│   ├── trilaterate/         # Solver, SR-LS & discovery tests
 │   ├── animate/             # Scene data & runner tests
 │   ├── cli/                 # CLI capability & dispatch tests
 │   └── fixtures/            # Dedicated test fixtures
 ├── docs/                    # Documentation & guides
 │   ├── RESEARCH.md          # Research notes
-│   ├── TRIANGULATE_README.md# Trilateration user guide
+│   ├── TRILATERATE_README.md# Trilateration user guide
 │   ├── mappro_guide/        # MapPro field guide (LaTeX)
 │   ├── animation/           # Manim visualization scene script
 │   ├── pictures/            # MapPro UI screenshots

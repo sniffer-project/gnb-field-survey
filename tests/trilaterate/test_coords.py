@@ -8,7 +8,7 @@ from decimal import Decimal
 
 import pytest
 
-from gnb_survey.triangulate.coords import (
+from gnb_survey.trilaterate.coords import (
     CoordinateFormat,
     UnknownCoordinateFormat,
     detect_format,

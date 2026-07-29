@@ -8,7 +8,7 @@ import pytest
 
 from gnb_survey.cli.capability import animate_blocked
 from gnb_survey.cli import dispatch
-from gnb_survey.triangulate.discovery import SurveyFiles, discover_surveys
+from gnb_survey.trilaterate.discovery import SurveyFiles, discover_surveys
 
 
 def _survey(root: Path, name: str, exports: tuple[str, ...]) -> None:

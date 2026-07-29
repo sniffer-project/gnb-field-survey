@@ -14,10 +14,10 @@ from typing import Any
 
 import numpy as np
 
-from ..triangulate import geo
-from ..triangulate.models import Solution, Survey
-from ..triangulate.report import format_solution
-from ..triangulate.srls import srls_position
+from ..trilaterate import geo
+from ..trilaterate.models import Solution, Survey
+from ..trilaterate.report import format_solution
+from ..trilaterate.srls import srls_position
 from .scene_schema import SCHEMA, load_scene as _load_validated_scene
 
 

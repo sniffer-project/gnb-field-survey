@@ -8,8 +8,8 @@ import math
 import pytest
 
 from gnb_survey.animate import scene_data
-from gnb_survey.triangulate import geo
-from gnb_survey.triangulate.models import Solution, Survey, SurveyPoint
+from gnb_survey.trilaterate import geo
+from gnb_survey.trilaterate.models import Solution, Survey, SurveyPoint
 
 _POINTS = (
     SurveyPoint("Pt1", 1.35579855, 103.69391447, 32.5729, 17.0, 82.3),

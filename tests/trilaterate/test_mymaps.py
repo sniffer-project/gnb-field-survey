@@ -5,8 +5,8 @@ import math
 
 import pytest
 
-from gnb_survey.triangulate.models import PointResidual, Solution
-from gnb_survey.triangulate.mymaps import (
+from gnb_survey.trilaterate.models import PointResidual, Solution
+from gnb_survey.trilaterate.mymaps import (
     CONFIDENCE_SCALE,
     HEADER,
     RING_POINTS,

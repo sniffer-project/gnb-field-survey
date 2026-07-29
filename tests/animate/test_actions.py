@@ -6,7 +6,7 @@ import argparse
 from pathlib import Path
 
 from gnb_survey.cli import actions
-from gnb_survey.triangulate.discovery import SurveyFiles
+from gnb_survey.trilaterate.discovery import SurveyFiles
 
 
 def test_animate_with_a_report_name_uses_the_stable_survey_scene_path(

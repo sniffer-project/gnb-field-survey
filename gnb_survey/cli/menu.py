@@ -10,7 +10,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Callable
 
-from ..triangulate.discovery import SurveyFiles, DiscoveryResult
+from ..trilaterate.discovery import SurveyFiles, DiscoveryResult
 from .capability import VERBS, blocked_for
 
 InputFn = Callable[[str], str]

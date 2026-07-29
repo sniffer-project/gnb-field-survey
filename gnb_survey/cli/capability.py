@@ -11,7 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from shutil import which
 
-from ..triangulate.discovery import SurveyFiles
+from ..trilaterate.discovery import SurveyFiles
 
 VERBS: tuple[str, ...] = ("convert", "solve", "animate")
 

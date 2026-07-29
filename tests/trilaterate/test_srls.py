@@ -5,7 +5,7 @@ import math
 import numpy as np
 import pytest
 
-from gnb_survey.triangulate.srls import srls_position
+from gnb_survey.trilaterate.srls import srls_position
 
 
 def _anchors_3d():

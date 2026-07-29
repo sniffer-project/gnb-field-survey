@@ -1,6 +1,6 @@
 """A 3Blue1Brown-style explainer of the gNB trilateration pipeline.
 
-Renders the real ``Hall 14`` survey geometry (solved by ``gnb_survey.triangulate``)
+Renders the real ``Hall 14`` survey geometry (solved by ``gnb_survey.trilaterate``)
 as a top-down East-North story:
 
     survey points  ->  range rings (no bearing!)  ->  the two-basin ambiguity
@@ -15,9 +15,9 @@ Two scenes:
 
 Built for ManimGL (3b1b's engine). Render with::
 
-    manimgl animation/triangulate_scene.py GnbTrilateration -w -l   # mp4 file
-    manimgl animation/triangulate_scene.py GnbMath           -w --hd # 1080p
-    manimgl animation/triangulate_scene.py GnbMath                   # interactive
+    manimgl animation/trilaterate_scene.py GnbTrilateration -w -l   # mp4 file
+    manimgl animation/trilaterate_scene.py GnbMath           -w --hd # 1080p
+    manimgl animation/trilaterate_scene.py GnbMath                   # interactive
 
 Geometry constants below are the actual ENU values produced by the solver, so
 the picture is faithful rather than illustrative.

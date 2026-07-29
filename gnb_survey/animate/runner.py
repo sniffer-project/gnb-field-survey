@@ -17,7 +17,7 @@ from typing import Callable
 MANIM_BINARY: str = "manimgl"
 SCENE_ENV: str = "GNB_SCENE_JSON"
 SCENE_FILE: Path = (
-    Path(__file__).resolve().parents[2] / "docs" / "animation" / "triangulate_scene.py"
+    Path(__file__).resolve().parents[2] / "docs" / "animation" / "trilaterate_scene.py"
 )
 QUALITY_FLAGS: dict[str, str] = {
     "low": "-l",

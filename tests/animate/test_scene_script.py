@@ -45,7 +45,7 @@ def test_invalid_scene_data_exits_clearly_before_importing_manimgl(
         Path(__file__).resolve().parents[2]
         / "docs"
         / "animation"
-        / "triangulate_scene.py"
+        / "trilaterate_scene.py"
     )
 
     with pytest.raises(SystemExit, match="srls_seed_en"):

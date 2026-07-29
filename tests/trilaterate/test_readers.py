@@ -6,9 +6,9 @@ from pathlib import Path
 import openpyxl
 import pytest
 
-from gnb_survey.triangulate.binoc import read_binoc_readings
-from gnb_survey.triangulate.assemble import SurveyDataError, build_survey
-from gnb_survey.triangulate.mappro import read_stations
+from gnb_survey.trilaterate.binoc import read_binoc_readings
+from gnb_survey.trilaterate.assemble import SurveyDataError, build_survey
+from gnb_survey.trilaterate.mappro import read_stations
 
 FIXTURES = Path(__file__).resolve().parents[1] / "fixtures"
 

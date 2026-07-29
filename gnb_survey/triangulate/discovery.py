@@ -24,20 +24,25 @@ _LOCK_PREFIX = "~$"
 
 @dataclass(frozen=True)
 class SurveyFiles:
-    """One survey on disk: where its input files are."""
+    """One survey on disk, and which of its inputs are present."""
 
     name: str
-    mappro: Path          # the preferred MapPro CSV export
-    binoc: Path
-    export_count: int
+    mappro: Path                    # the preferred MapPro export
+    exports: tuple[Path, ...]       # every export found, newest-preferred first
+    binoc: Path | None              # None until the sightings are typed up
+    scene_json: Path | None = None  # written by a previous solve
+
+    @property
+    def export_count(self) -> int:
+        return len(self.exports)
 
 
 @dataclass(frozen=True)
 class DiscoveryResult:
-    """What a scan found, and what it deliberately could not use."""
+    """What a scan found, and which folders held nothing usable at all."""
 
     surveys: tuple[SurveyFiles, ...]
-    unavailable: tuple[tuple[str, str], ...]  # (name, reason)
+    unreadable: tuple[tuple[str, str], ...]  # (name, reason)
 
 
 def _usable(paths: list[Path]) -> list[Path]:
@@ -56,14 +61,21 @@ def _find_binoc(data_root: Path, name: str) -> Path | None:
     return matches[0] if matches else None
 
 
-def discover_surveys(data_root: Path) -> DiscoveryResult:
-    """Scan a data root, newest survey first."""
+def discover_surveys(
+    data_root: Path, output_dir: Path | None = None
+) -> DiscoveryResult:
+    """Scan a data root, newest survey first.
+
+    A survey needs only a MapPro export to be discovered. Whether it can be
+    solved or animated is a separate question, answered by cli.capability --
+    keeping "what exists" apart from "what you can do with it".
+    """
     survey_root = Path(data_root) / SURVEY_SUBDIR
     if not survey_root.is_dir():
-        return DiscoveryResult(surveys=(), unavailable=())
+        return DiscoveryResult(surveys=(), unreadable=())
 
     surveys: list[SurveyFiles] = []
-    unavailable: list[tuple[str, str]] = []
+    unreadable: list[tuple[str, str]] = []
     folders = sorted(
         (d for d in survey_root.iterdir() if d.is_dir()),
         key=lambda d: d.name,
@@ -72,20 +84,19 @@ def discover_surveys(data_root: Path) -> DiscoveryResult:
     for folder in folders:
         exports = _usable(list(folder.rglob("*.csv")))
         if not exports:
-            unavailable.append((folder.name, "no .csv exports in the survey folder"))
+            unreadable.append((folder.name, "no .csv exports in the survey folder"))
             continue
-        binoc = _find_binoc(Path(data_root), folder.name)
-        if binoc is None:
-            unavailable.append(
-                (folder.name, f"no '{folder.name}*.xlsx' sightings workbook found")
-            )
-            continue
+        scene = None
+        if output_dir is not None:
+            candidate = Path(output_dir) / f"{folder.name}_scene.json"
+            scene = candidate if candidate.is_file() else None
         surveys.append(
             SurveyFiles(
                 name=folder.name,
                 mappro=_preferred_export(exports),
-                binoc=binoc,
-                export_count=len(exports),
+                exports=tuple(exports),
+                binoc=_find_binoc(Path(data_root), folder.name),
+                scene_json=scene,
             )
         )
-    return DiscoveryResult(tuple(surveys), tuple(unavailable))
+    return DiscoveryResult(tuple(surveys), tuple(unreadable))

@@ -51,20 +51,34 @@ def test_skips_excel_lock_files(tmp_path):
 
 
 @pytest.mark.unit
-def test_reports_survey_with_no_workbook_as_unavailable(tmp_path):
-    _survey(tmp_path, "20260801", ("dd (Decimal).csv",), binoc=False)
+def test_a_survey_without_a_workbook_is_still_discovered(tmp_path):
+    """MapPro comes back from the field days before the sightings are typed up.
+
+    Such a survey is fully convertible, so dropping it from the results (as
+    the old available/unavailable split did) hides work the user can do.
+    """
+    folder = tmp_path / "surveys" / "20260722" / "mappro"
+    folder.mkdir(parents=True)
+    (folder / "dd (Decimal).csv").write_text("Point Name\nPt1\n", encoding="latin-1")
+
     result = discover_surveys(tmp_path)
-    assert result.surveys == ()
-    assert result.unavailable[0][0] == "20260801"
-    assert "xlsx" in result.unavailable[0][1]
+
+    assert [s.name for s in result.surveys] == ["20260722"]
+    assert result.surveys[0].binoc is None
+    assert result.unreadable == ()
 
 
 @pytest.mark.unit
-def test_reports_survey_with_no_csv_as_unavailable(tmp_path):
-    (tmp_path / "surveys" / "20260801").mkdir(parents=True)
+def test_a_folder_with_no_exports_is_unreadable(tmp_path):
+    (tmp_path / "surveys" / "20260723").mkdir(parents=True)
+
     result = discover_surveys(tmp_path)
+
     assert result.surveys == ()
-    assert "csv" in result.unavailable[0][1]
+    assert len(result.unreadable) == 1
+    name, reason = result.unreadable[0]
+    assert name == "20260723"
+    assert "csv" in reason.lower()
 
 
 @pytest.mark.unit
@@ -79,7 +93,7 @@ def test_sorts_newest_first(tmp_path):
 def test_missing_data_root_yields_nothing_rather_than_crashing(tmp_path):
     result = discover_surveys(tmp_path / "does-not-exist")
     assert result.surveys == ()
-    assert result.unavailable == ()
+    assert result.unreadable == ()
 
 
 @pytest.mark.unit

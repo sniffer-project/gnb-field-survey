@@ -29,12 +29,13 @@ def select_survey(
     output_fn("  Surveys found:")
     output_fn("")
     for index, survey in enumerate(result.surveys, start=1):
+        binoc_desc = survey.binoc.name if survey.binoc is not None else "not yet typed up"
         output_fn(
             f"    {index}) {survey.name}   {survey.export_count} export format(s)"
-            f" · binoc: {survey.binoc.name}"
+            f" · binoc: {binoc_desc}"
         )
-    for name, reason in result.unavailable:
-        output_fn(f"       {name}   unavailable: {reason}")
+    for name, reason in result.unreadable:
+        output_fn(f"       {name}   unreadable: {reason}")
     output_fn(f"    {_MANUAL_KEY}) enter file paths manually")
     output_fn("")
 
@@ -80,6 +81,6 @@ def _manual_entry(input_fn: InputFn, output_fn: OutputFn) -> SurveyFiles | None:
     return SurveyFiles(
         name=mappro.parent.name,
         mappro=mappro,
+        exports=(mappro,),
         binoc=binoc,
-        export_count=1,
     )

@@ -13,12 +13,13 @@ def _result(tmp_path) -> DiscoveryResult:
     binoc = tmp_path / "b.xlsx"
     survey.write_text("x", encoding="latin-1")
     binoc.write_bytes(b"x")
+    exports = tuple(survey for _ in range(9))
     return DiscoveryResult(
         surveys=(
-            SurveyFiles("20260801", survey, binoc, 9),
-            SurveyFiles("20260716", survey, binoc, 9),
+            SurveyFiles("20260801", survey, exports, binoc),
+            SurveyFiles("20260716", survey, exports, binoc),
         ),
-        unavailable=(("20260620", "no workbook"),),
+        unreadable=(("20260620", "no .csv exports in the survey folder"),),
     )
 
 
@@ -59,10 +60,10 @@ def test_out_of_range_reprompts_then_succeeds(tmp_path):
 
 
 @pytest.mark.unit
-def test_unavailable_surveys_are_shown_with_their_reason(tmp_path):
+def test_unreadable_surveys_are_shown_with_their_reason(tmp_path):
     lines: list[str] = []
     select_survey(_result(tmp_path), input_fn=_Answers(""), output_fn=lines.append)
-    assert any("20260620" in line and "no workbook" in line for line in lines)
+    assert any("20260620" in line and "no .csv exports" in line for line in lines)
 
 
 @pytest.mark.unit

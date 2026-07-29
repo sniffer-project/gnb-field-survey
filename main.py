@@ -26,6 +26,7 @@ import sys
 from pathlib import Path
 from typing import Callable
 
+from gnb_survey.cli.capability import solve_blocked
 from gnb_survey.triangulate import solver
 from gnb_survey.triangulate.binoc import read_binoc_readings
 from gnb_survey.triangulate.assemble import SurveyDataError, build_survey
@@ -90,19 +91,21 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
 def _describe(result: DiscoveryResult, data_root: Path, output_fn) -> None:
     output_fn(f"  Surveys under {data_root}:")
     for survey in result.surveys:
+        binoc_desc = survey.binoc.name if survey.binoc is not None else "not yet typed up"
         output_fn(
             f"    {survey.name}   {survey.export_count} export format(s)"
-            f" · binoc: {survey.binoc.name}"
+            f" · binoc: {binoc_desc}"
         )
-    for name, reason in result.unavailable:
-        output_fn(f"    {name}   unavailable: {reason}")
+    for name, reason in result.unreadable:
+        output_fn(f"    {name}   unreadable: {reason}")
 
 
 def _no_surveys_message(data_root: Path) -> str:
     return (
         f"error: no surveys found under {data_root}. Expected MapPro exports "
-        f"in {data_root / SURVEY_SUBDIR}/<NAME>/*.csv and a matching "
-        f"<NAME>*.xlsx sightings workbook somewhere under {data_root}."
+        f"in {data_root / SURVEY_SUBDIR}/<NAME>/*.csv; a matching "
+        f"<NAME>*.xlsx sightings workbook, if present, may be anywhere under "
+        f"{data_root}."
     )
 
 
@@ -124,13 +127,13 @@ def _resolve(
         parent_name = mappro.parent.name
         name = mappro.parent.parent.name if parent_name in ("mappro", "map_pro") else parent_name
         return SurveyFiles(
-            name=name, mappro=mappro, binoc=args.binoc, export_count=1
+            name=name, mappro=mappro, exports=(mappro,), binoc=args.binoc
         )
 
     if args.target is not None:
         for survey in result.surveys:
             if survey.name == args.target:
-                return survey
+                return _require_binoc(survey)
         if Path(args.target).exists():
             return (
                 f"error: {args.target} is a file, so give both the MapPro CSV "
@@ -153,7 +156,20 @@ def _resolve(
     chosen = select_survey(result, input_fn=input_fn, output_fn=output_fn)
     if chosen is None:
         return "error: cancelled."
-    return chosen
+    return _require_binoc(chosen)
+
+
+def _require_binoc(survey: SurveyFiles) -> SurveyFiles | str:
+    """This CLI only solves, so a survey missing its workbook is an error here.
+
+    Discovery no longer excludes such surveys (they are still convertible),
+    so solving must reject them explicitly instead of crashing further down
+    when the workbook path turns out to be None.
+    """
+    blocked = solve_blocked(survey)
+    if blocked is not None:
+        return f"error: {blocked.reason}; {blocked.fix}"
+    return survey
 
 
 def main(
@@ -170,7 +186,7 @@ def main(
     result = discover_surveys(args.data_root)
 
     if args.list:
-        if not result.surveys and not result.unavailable:
+        if not result.surveys and not result.unreadable:
             output_fn(_no_surveys_message(args.data_root))
             return 1
         _describe(result, args.data_root, output_fn)

@@ -9,14 +9,15 @@ answer.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from shutil import which
 
+from ..animate import availability
+from ..animate.availability import Renderer
 from ..trilaterate.discovery import SurveyFiles
 
 VERBS: tuple[str, ...] = ("convert", "solve", "animate")
 
-MANIM_BINARY = "manimgl"
-_INSTALL_HINT = 'pip install -e ".[animation]"'
+MANIM_BINARY = availability.BINARY
+_INSTALL_HINT = availability.INSTALL_HINT
 
 
 @dataclass(frozen=True)
@@ -46,25 +47,52 @@ def solve_blocked(files: SurveyFiles) -> Blocked | None:
 
 
 def animate_blocked(
-    files: SurveyFiles, *, manim_available: bool | None = None
+    files: SurveyFiles,
+    *,
+    manim_available: bool | None = None,
+    renderer: Renderer | None = None,
 ) -> Blocked | None:
-    """Animation needs a solution and a renderer.
+    """Animation needs a solution and a renderer that runs.
 
     An existing scene JSON stands in for the solve, so a survey whose workbook
     has been archived can still be re-rendered.
+
+    Both overrides are for callers that already know the answer: `renderer`
+    gives the exact state, `manim_available` is the shorthand for the two
+    states that existed before a broken install could be told apart from an
+    absent one. Given neither, the renderer is probed once per process.
     """
     if files.scene_json is None:
         blocked = solve_blocked(files)
         if blocked is not None:
             return blocked
-    if manim_available is None:
-        manim_available = which(MANIM_BINARY) is not None
-    if not manim_available:
+
+    state = _renderer(manim_available=manim_available, renderer=renderer)
+    if not state.on_path:
         return Blocked(
             reason=f"{MANIM_BINARY} is not installed",
             fix=_INSTALL_HINT,
         )
+    if state.start_error is not None:
+        return Blocked(
+            reason=(
+                f"{MANIM_BINARY} is installed but will not start: "
+                f"{state.start_error}"
+            ),
+            fix=_INSTALL_HINT,
+        )
     return None
+
+
+def _renderer(
+    *, manim_available: bool | None, renderer: Renderer | None
+) -> Renderer:
+    """Resolve the renderer state, probing only when nobody supplied one."""
+    if renderer is not None:
+        return renderer
+    if manim_available is not None:
+        return availability.READY if manim_available else availability.MISSING
+    return availability.current()
 
 
 _CHECKS = {
@@ -74,11 +102,17 @@ _CHECKS = {
 
 
 def blocked_for(
-    verb: str, files: SurveyFiles, *, manim_available: bool | None = None
+    verb: str,
+    files: SurveyFiles,
+    *,
+    manim_available: bool | None = None,
+    renderer: Renderer | None = None,
 ) -> Blocked | None:
     """Dispatch to the check for `verb`."""
     if verb == "animate":
-        return animate_blocked(files, manim_available=manim_available)
+        return animate_blocked(
+            files, manim_available=manim_available, renderer=renderer
+        )
     check = _CHECKS.get(verb)
     if check is None:
         raise ValueError(f"unknown verb {verb!r}; expected one of {', '.join(VERBS)}")

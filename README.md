@@ -48,7 +48,7 @@ gnb-field-survey/
 ├── gnb_survey/              # Core survey package
 │   ├── convert/             # MapPro export converter (stdlib-only)
 │   ├── trilaterate/         # 3D gNB trilateration solver
-│   ├── animate/             # ManimGL scene data builder & runner
+│   ├── animate/             # ManimGL scene data, renderer probe & runner
 │   └── cli/                 # CLI argument parsing, capability checks & menu
 ├── tests/                   # Unified test suite
 │   ├── convert_formats/     # Format detection & decoding tests

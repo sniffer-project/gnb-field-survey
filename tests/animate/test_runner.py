@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from gnb_survey.animate import runner
+from gnb_survey.animate import availability, runner
 
 
 def test_argv_uses_the_documented_flags():
@@ -54,7 +54,7 @@ def test_missing_manimgl_raises_with_the_install_hint(tmp_path):
     scene_json = tmp_path / "s.json"
     scene_json.write_text("{}", encoding="utf-8")
 
-    with pytest.raises(runner.ManimMissing) as excinfo:
+    with pytest.raises(runner.ManimUnusable) as excinfo:
         runner.render(
             scene_json=scene_json,
             scene_name="GnbTrilateration",
@@ -62,11 +62,34 @@ def test_missing_manimgl_raises_with_the_install_hint(tmp_path):
             video_dir=tmp_path,
             output_fn=lambda _: None,
             runner_fn=None,
-            which_fn=lambda _: None,  # pretend manimgl is not on PATH
+            renderer=availability.MISSING,
         )
 
     message = str(excinfo.value)
     assert "manimgl" in message
+    assert "animation" in message
+
+
+def test_a_manimgl_that_cannot_start_is_refused_before_it_is_spawned(tmp_path):
+    """Spawning it would only reprint the traceback the probe already read."""
+    scene_json = tmp_path / "s.json"
+    scene_json.write_text("{}", encoding="utf-8")
+    spawned: list[list[str]] = []
+
+    with pytest.raises(runner.ManimUnusable) as excinfo:
+        runner.render(
+            scene_json=scene_json,
+            scene_name="GnbTrilateration",
+            quality="hd",
+            video_dir=tmp_path,
+            output_fn=lambda _: None,
+            runner_fn=lambda argv, env: spawned.append(argv) or 0,
+            renderer=availability.broken("ModuleNotFoundError: no 'pyaudioop'"),
+        )
+
+    assert spawned == []
+    message = str(excinfo.value)
+    assert "pyaudioop" in message
     assert "animation" in message
 
 
@@ -87,7 +110,7 @@ def test_render_passes_the_scene_path_through_the_environment(tmp_path):
         video_dir=tmp_path,
         output_fn=lambda _: None,
         runner_fn=fake_runner,
-        which_fn=lambda _: "/usr/local/bin/manimgl",
+        renderer=availability.READY,
     )
 
     assert code == 0

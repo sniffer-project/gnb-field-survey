@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from gnb_survey.animate import availability
+from gnb_survey.cli import capability
 from gnb_survey.cli.capability import (
     animate_blocked,
     blocked_for,
@@ -53,6 +55,38 @@ def test_animate_is_blocked_when_manimgl_is_absent():
     assert blocked is not None
     assert "manimgl" in blocked.reason
     assert "animation" in blocked.fix
+
+
+def test_animate_is_blocked_when_manimgl_cannot_start():
+    """On PATH but dead on import -- what a which() check calls available.
+
+    The menu offered "3) Render the animation", then manimgl died in its own
+    import chain and the user got a raw dependency traceback. The reason has
+    to carry the detail: "manimgl is broken" alone is not actionable.
+    """
+    blocked = animate_blocked(
+        _files(binoc=_XLSX),
+        renderer=availability.broken(
+            "ModuleNotFoundError: No module named 'pyaudioop'"
+        ),
+    )
+
+    assert blocked is not None
+    assert "manimgl" in blocked.reason
+    assert "pyaudioop" in blocked.reason
+    assert "animation" in blocked.fix
+
+
+def test_an_explicit_answer_never_reaches_for_the_probe(monkeypatch):
+    """Callers that already know must not pay for a process start."""
+
+    def explode():
+        raise AssertionError("probed despite being told the answer")
+
+    monkeypatch.setattr(capability.availability, "current", explode)
+
+    assert animate_blocked(_files(binoc=_XLSX), manim_available=True) is None
+    assert animate_blocked(_files(binoc=_XLSX), renderer=availability.READY) is None
 
 
 def test_animate_is_available_with_a_workbook_and_manimgl():

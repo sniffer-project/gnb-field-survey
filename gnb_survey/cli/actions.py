@@ -103,6 +103,6 @@ def do_animate(
             video_dir=output_dir,
             output_fn=output_fn,
         )
-    except runner.ManimMissing as exc:
+    except runner.ManimUnusable as exc:
         output_fn(f"error: {exc}")
         return 1

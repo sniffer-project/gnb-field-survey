@@ -9,12 +9,14 @@ CLI: -w (write file), -l/-m/--hd/--uhd (quality), --video_dir.
 from __future__ import annotations
 
 import os
-import shutil
 import subprocess
 from pathlib import Path
 from typing import Callable
 
-MANIM_BINARY: str = "manimgl"
+from . import availability
+from .availability import Renderer
+
+MANIM_BINARY: str = availability.BINARY
 SCENE_ENV: str = "GNB_SCENE_JSON"
 SCENE_FILE: Path = (
     Path(__file__).resolve().parents[2] / "docs" / "animation" / "trilaterate_scene.py"
@@ -25,14 +27,13 @@ QUALITY_FLAGS: dict[str, str] = {
     "hd": "--hd",
     "uhd": "--uhd",
 }
-_INSTALL_HINT: str = 'pip install -e ".[animation]"'
+_INSTALL_HINT: str = availability.INSTALL_HINT
 
 RunnerFn = Callable[[list[str], dict[str, str]], int]
-WhichFn = Callable[[str], str | None]
 
 
-class ManimMissing(RuntimeError):
-    """manimgl is not on PATH."""
+class ManimUnusable(RuntimeError):
+    """manimgl is not on PATH, or is on PATH and will not start."""
 
 
 def build_argv(
@@ -60,6 +61,24 @@ def _default_runner(argv: list[str], env: dict[str, str]) -> int:
     return subprocess.call(argv, env=env)
 
 
+def _unusable_message(state: Renderer, *, argv: list[str], scene_json: Path) -> str:
+    if state.on_path:
+        headline = (
+            f"{MANIM_BINARY} is installed but will not start: {state.start_error}\n"
+            f"Reinstall the animation extras with:"
+        )
+    else:
+        headline = (
+            f"{MANIM_BINARY} is not installed. Install the animation extras with:"
+        )
+    return (
+        f"{headline}\n"
+        f"    {_INSTALL_HINT}\n"
+        f"then run:\n"
+        f"    {SCENE_ENV}={scene_json} {' '.join(argv)}"
+    )
+
+
 def render(
     *,
     scene_json: Path,
@@ -69,22 +88,25 @@ def render(
     output_fn: Callable[[str], None],
     scene_file: Path | None = None,
     runner_fn: RunnerFn | None = None,
-    which_fn: WhichFn | None = None,
+    renderer: Renderer | None = None,
 ) -> int:
-    """Render one scene and return manimgl's exit code."""
-    which_fn = which_fn or shutil.which
-    if which_fn(MANIM_BINARY) is None:
+    """Render one scene and return manimgl's exit code.
+
+    The renderer is probed rather than merely located, so a manimgl that
+    cannot import its own dependencies is refused here with the reason
+    instead of being spawned to reprint its traceback. The probe is cached,
+    so the menu having already asked makes this free.
+    """
+    state = renderer if renderer is not None else availability.current()
+    if not state.ready:
         argv = build_argv(
             scene_file=scene_file or SCENE_FILE,
             scene_name=scene_name,
             quality=quality,
             video_dir=video_dir,
         )
-        raise ManimMissing(
-            f"{MANIM_BINARY} is not installed. Install the animation extras with:\n"
-            f"    {_INSTALL_HINT}\n"
-            f"then run:\n"
-            f"    {SCENE_ENV}={scene_json} {' '.join(argv)}"
+        raise ManimUnusable(
+            _unusable_message(state, argv=argv, scene_json=scene_json)
         )
 
     argv = build_argv(

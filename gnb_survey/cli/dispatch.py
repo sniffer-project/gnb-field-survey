@@ -180,6 +180,29 @@ def _files_from_paths(verb: str, rest: list[str]) -> SurveyFiles | str:
     )
 
 
+def _named_twice(target: str, verb: str | None, rest: list[str]) -> str:
+    """Refuse a command that names its subject twice, naming both readings.
+
+    `survey.py 20260701 solve /other/A.csv /other/B.xlsx` and its verbless
+    cousin `survey.py 20260701 /other/A.csv /other/B.xlsx` each supply a
+    discovered survey *and* explicit paths. Acting on either discards
+    whatever the user typed for the other, so neither is chosen for them.
+
+    Silence is especially costly when the paths are what gets dropped: the
+    run continues to the capability check and reports a missing sightings
+    workbook while the user is looking at the workbook path they just typed.
+    That sends them hunting for a file that is already in their hand, so
+    this must fire before any capability check.
+    """
+    joined = " ".join(rest)
+    shown = verb if verb is not None else "<verb>"
+    return (
+        "error: give a survey name or explicit file paths, not both. Use "
+        f"`survey.py {target} {shown}` to act on the discovered survey, or "
+        f"`survey.py {shown} {joined}` to act on those files."
+    )
+
+
 def _resolve(
     args: argparse.Namespace,
     result: DiscoveryResult,
@@ -193,15 +216,7 @@ def _resolve(
 ) -> SurveyFiles | str:
     """Return the survey to act on, or an error message explaining why not."""
     if target is not None and verb is not None and rest:
-        # `survey.py 20260701 solve /other/A.csv /other/B.xlsx` means two
-        # different things and acting on either drops the other silently.
-        # Same rule as the verb-named-survey check in `main`: name both
-        # readings rather than resolve one.
-        return (
-            "error: give a survey name or explicit file paths, not both. Use "
-            f"`survey.py {target} {verb}` to act on the discovered survey, or "
-            f"`survey.py {verb} {' '.join(rest)}` to act on those files."
-        )
+        return _named_twice(target, verb, rest)
 
     if verb is not None and rest:
         return _files_from_paths(verb, rest)
@@ -209,6 +224,11 @@ def _resolve(
     if target is not None:
         for files in result.surveys:
             if files.name == target:
+                # The name matched, but trailing paths were never consumed by
+                # anything. Non-empty `rest` here is evidence of a malformed
+                # command, not of a survey to act on.
+                if rest:
+                    return _named_twice(target, verb, rest)
                 return files
         if Path(target).exists():
             return (

@@ -220,6 +220,69 @@ def test_a_survey_name_and_explicit_paths_together_are_rejected(data_root):
 
 
 @pytest.mark.unit
+def test_a_survey_name_with_trailing_paths_and_no_verb_is_rejected(
+    data_root_without_binoc, tmp_path
+):
+    """`survey.py 20260722 A.csv B.xlsx` -- the name matched, the paths did not.
+
+    Matching the name used to return the discovered survey immediately, which
+    dropped both paths and then, because 20260722 has no workbook, reported
+    "no 20260722*.xlsx sightings workbook" -- while the user was looking at
+    the workbook path they had just typed. That message is asserted *absent*:
+    it is the specific wrong trail this fix exists to prevent.
+    """
+    elsewhere = tmp_path / "elsewhere"
+    elsewhere.mkdir()
+    other_a = elsewhere / "OTHER_A.csv"
+    other_b = elsewhere / "OTHER_B.xlsx"
+    other_a.write_text(_HEADER + _ROWS, encoding="latin-1")
+    other_b.write_bytes(b"x")
+
+    code, text = _run(
+        ["20260722", str(other_a), str(other_b),
+         "--data-root", str(data_root_without_binoc)]
+    )
+
+    assert code == 1
+    assert str(other_a) in text                             # the leftovers are named
+    assert str(other_b) in text
+    assert "survey.py 20260722 <verb>" in text              # the survey reading
+    assert f"survey.py <verb> {other_a} {other_b}" in text  # the paths reading
+    assert "sightings workbook" not in text                 # the misleading trail
+
+
+@pytest.mark.unit
+def test_a_survey_name_alone_still_reaches_the_verb_menu(data_root):
+    """The leftover-paths guard sits inside the name-match branch; it must not
+    swallow the ordinary `survey.py <name>` case, which has an empty rest."""
+    answers = iter(["2"])
+    code, text = _run(
+        ["20260716", "--data-root", str(data_root)],
+        is_tty=True,
+        input_fn=lambda _: next(answers),
+    )
+    assert code == 0
+    assert "Solve the gNB position" in text   # the verb menu was shown
+    assert "20260716 gNB" in text             # and the chosen verb ran
+
+
+@pytest.mark.unit
+def test_two_file_paths_with_no_verb_still_say_to_put_the_verb_first(data_root):
+    """`survey.py A.csv B.xlsx` is an omission, not an ambiguity.
+
+    `target` is itself a file here, so no discovered survey conflicts with
+    the paths -- there is only one reading, and the useful thing to say is
+    where the verb goes.
+    """
+    survey = data_root / "surveys" / "20260716" / "mappro" / "dd (Decimal).csv"
+    binoc = data_root / "20260716_measurment_binoc.xlsx"
+    code, text = _run([str(survey), str(binoc), "--data-root", str(data_root)])
+    assert code == 1
+    assert "verb first" in text
+    assert "not both" not in text
+
+
+@pytest.mark.unit
 def test_name_option_overrides_the_survey_name(data_root):
     code, text = _run(["20260716", "--data-root", str(data_root), "--name", "Cetran"])
     assert code == 0

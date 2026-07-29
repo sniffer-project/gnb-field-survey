@@ -15,7 +15,13 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-animation = ["manimgl"]
+# manimgl pulls in pydub, which imports the stdlib `audioop` module that PEP 594
+# removed in Python 3.13; pydub's fallback (`pyaudioop`) was never published.
+# Without the backport, `import manimlib` fails outright on 3.13+.
+animation = [
+    "manimgl",
+    "audioop-lts; python_version >= '3.13'",
+]
 dev = ["pytest"]
 
 [tool.setuptools]

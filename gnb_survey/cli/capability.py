@@ -79,9 +79,7 @@ def blocked_for(
     """Dispatch to the check for `verb`."""
     if verb == "animate":
         return animate_blocked(files, manim_available=manim_available)
-    try:
-        return _CHECKS[verb](files)
-    except KeyError:
-        raise ValueError(
-            f"unknown verb {verb!r}; expected one of {', '.join(VERBS)}"
-        ) from None
+    check = _CHECKS.get(verb)
+    if check is None:
+        raise ValueError(f"unknown verb {verb!r}; expected one of {', '.join(VERBS)}")
+    return check(files)

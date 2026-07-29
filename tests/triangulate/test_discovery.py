@@ -7,15 +7,14 @@ import pytest
 from gnb_survey.triangulate.discovery import SurveyFiles, discover_surveys
 
 
-def _survey(root: Path, name: str, exports: tuple[str, ...], binoc: bool = True) -> None:
+def _survey(root: Path, name: str, exports: tuple[str, ...]) -> None:
     folder = root / "surveys" / name
     folder.mkdir(parents=True)
     for export in exports:
         (folder / export).write_text("Point Name\n", encoding="latin-1")
-    if binoc:
-        sightings = root / "sightings"
-        sightings.mkdir(exist_ok=True)
-        (sightings / f"{name}_measurment_binoc.xlsx").write_bytes(b"stub")
+    sightings = root / "sightings"
+    sightings.mkdir(exist_ok=True)
+    (sightings / f"{name}_measurment_binoc.xlsx").write_bytes(b"stub")
 
 
 @pytest.mark.unit

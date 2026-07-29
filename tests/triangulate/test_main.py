@@ -35,6 +35,20 @@ def data_root(tmp_path) -> Path:
     return tmp_path
 
 
+@pytest.fixture()
+def data_root_without_binoc(tmp_path) -> Path:
+    """A survey whose MapPro export exists but whose sightings haven't been typed up.
+
+    Discovery now surfaces this survey rather than hiding it, so resolving it
+    for solving must fail cleanly instead of crashing inside
+    read_binoc_readings(None).
+    """
+    folder = tmp_path / "surveys" / "20260722" / "mappro"
+    folder.mkdir(parents=True)
+    (folder / "dd (Decimal).csv").write_text(_HEADER + _ROWS, encoding="latin-1")
+    return tmp_path
+
+
 def _run(argv, **kwargs):
     lines: list[str] = []
     code = cli.main(["main.py", *argv], output_fn=lines.append, **kwargs)
@@ -60,6 +74,35 @@ def test_unknown_survey_lists_what_was_found(data_root):
     code, text = _run(["19990101", "--data-root", str(data_root)])
     assert code == 1
     assert "20260716" in text
+
+
+@pytest.mark.unit
+def test_named_survey_without_a_workbook_errors_instead_of_crashing(data_root_without_binoc):
+    """Regression: discovery no longer excludes a binoc-less survey, so
+    resolving it by name must fail cleanly rather than raising TypeError
+    inside read_binoc_readings(None)."""
+    code, text = _run(
+        ["20260722", "--data-root", str(data_root_without_binoc)], is_tty=False
+    )
+    assert code == 1
+    assert "20260722" in text
+    assert "xlsx" in text
+
+
+@pytest.mark.unit
+def test_prompted_survey_without_a_workbook_errors_instead_of_crashing(
+    data_root_without_binoc,
+):
+    """Same regression, reached by picking the survey from the interactive
+    prompt instead of naming it on the command line."""
+    code, text = _run(
+        ["--data-root", str(data_root_without_binoc)],
+        is_tty=True,
+        input_fn=lambda _: "",
+    )
+    assert code == 1
+    assert "20260722" in text
+    assert "xlsx" in text
 
 
 @pytest.mark.unit

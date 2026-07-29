@@ -86,7 +86,7 @@ gnb-field-survey/
 - 3D trilateration via Squared-Range Least Squares (SR-LS) + Levenberg-Marquardt
 - 1σ uncertainty estimates and 95% confidence error ellipse
 - WGS84 + SVY21 (EPSG:3414) coordinate output
-- Exports gNB location + error ellipse ring to Google My Maps CSV and scene JSON
+- Exports the gNB as a single Google My Maps CSV pin (ellipse noted as text) and scene JSON
 
 ### Scene Animation
 - Drives ManimGL 3D/2D animation directly from solved JSON scene data

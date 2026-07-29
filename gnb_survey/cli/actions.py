@@ -69,11 +69,11 @@ def do_solve(
     if not args.no_csv:
         destination = args.csv or output_dir / default_csv_name(survey.name)
         try:
-            rows = write_csv(solution, destination)
+            write_csv(solution, destination)
         except ValueError as exc:
             output_fn(f"error: {exc}")
             return 1
-        output_fn(f"  Wrote {rows} rows to {destination}")
+        output_fn(f"  Wrote the gNB pin to {destination}")
 
     scene_path = output_dir / f"{files.name}_scene.json"
     scene_data.write_scene(survey, solution, scene_path)

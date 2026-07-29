@@ -191,17 +191,22 @@ interactive picker. The picker only appears when stdin is a terminal — in a pi
 job or CI it errors instead, so automation never blocks on a prompt. Add
 `--no-input` to enforce that explicitly.
 
-Every run also writes the gNB and a 36-point ring tracing its **95% confidence
-ellipse** into `data/output/<survey>_gnb.csv`, ready to import into Google My Maps
-(choose Latitude and Longitude when it asks which columns position the points).
-Use `--csv PATH` to write elsewhere, or `--no-csv` to skip it.
+Every run also writes the gNB into `data/output/<survey>_gnb.csv`, ready to
+import into Google My Maps (choose Latitude and Longitude when it asks which
+columns position the points). Use `--csv PATH` to write elsewhere, or
+`--no-csv` to skip it.
 
-The ring is deliberately *not* the "1σ" ellipse quoted in the console. In two
-dimensions a 1σ ellipse contains only 39% of the probability, not the 68% most
-readers assume — `1 − exp(−½)`. The 95% contour sits at 2.45σ. For the
-20260716 survey that is semi-axes of 7.72 × 1.67 m, spanning 15.4 m by
-3.3 m, with the long axis bearing 099°. That long thin shape is the honest
-picture of a fix whose cross-range direction is weakly constrained.
+The file is a single pin. My Maps draws one marker per CSV row, so a ring of
+points tracing the confidence contour imports as a scatter of dozens of pins,
+not an ellipse. The uncertainty instead rides along in the pin's
+`Measurement Method` field, e.g. `95% ellipse 15.4 x 3.3 m @ 099 deg`.
+
+That figure is deliberately *not* the "1σ" ellipse quoted in the console. In
+two dimensions a 1σ ellipse contains only 39% of the probability, not the 68%
+most readers assume — `1 − exp(−½)`. The 95% contour sits at 2.45σ. For the
+20260716 survey that spans 15.4 m by 3.3 m, with the long axis bearing 099°.
+That long thin shape is the honest picture of a fix whose cross-range
+direction is weakly constrained.
 
 `Northing` and `Easting` are left blank: My Maps positions purely by
 latitude/longitude. The columns are kept so the file concatenates with survey
@@ -452,7 +457,7 @@ gnb_survey/
     coords.py    decodes MapPro's nine Lat/Lon formats; detects which one
     discovery.py find surveys under a data root
     prompt.py    interactive selection through injected streams
-    mymaps.py    gNB + 95% confidence ring as a My Maps CSV
+    mymaps.py    gNB as a single My Maps CSV pin, uncertainty as text
     mappro.py    reads a raw MapPro survey CSV into Stations
     binoc.py     reads the binocular sightings workbook
     assemble.py  joins the two, validating that they agree

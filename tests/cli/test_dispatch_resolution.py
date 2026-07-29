@@ -396,18 +396,16 @@ def test_csv_flag_writes_the_file(data_root, tmp_path):
 
 
 @pytest.mark.unit
-def test_csv_has_the_gnb_and_a_full_ring(data_root, tmp_path):
+def test_csv_has_only_the_gnb_pin(data_root, tmp_path):
     import csv as _csv
-
-    from gnb_survey.trilaterate.mymaps import RING_POINTS
 
     out = tmp_path / "gnb.csv"
     _run(["20260716", "--data-root", str(data_root), "--csv", str(out)])
     with out.open(newline="", encoding="utf-8") as handle:
         rows = list(_csv.DictReader(handle))
-    assert len(rows) == RING_POINTS + 1
+    assert len(rows) == 1
     assert rows[0]["Code"] == "gNB"
-    assert rows[1]["Code"] == "ellipse95"
+    assert "95% ellipse" in rows[0]["Measurement Method"]
 
 
 @pytest.mark.unit

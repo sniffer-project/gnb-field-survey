@@ -1,4 +1,4 @@
-"""A 3Blue1Brown-style explainer of the gNB triangulation pipeline.
+"""A 3Blue1Brown-style explainer of the gNB trilateration pipeline.
 
 Renders the real ``Hall 14`` survey geometry (solved by ``gnb_survey.triangulate``)
 as a top-down East-North story:
@@ -8,16 +8,16 @@ as a top-down East-North story:
     ->  1-sigma covariance error ellipse  ->  final fix.
 
 Two scenes:
-  * GnbTriangulation - the top-down geometry story.
+  * GnbTrilateration - the top-down geometry story.
   * GnbMath          - the math, 3b1b "derivation" style: measurement model,
                        weighted least-squares cost, non-convexity, the
                        squared-range (GTRS) global seed, LM refine, covariance.
 
 Built for ManimGL (3b1b's engine). Render with::
 
-    manimgl animation/triangulate_scene.py GnbTriangulation -w -l   # mp4 file
-    manimgl animation/triangulate_scene.py GnbMath          -w --hd # 1080p
-    manimgl animation/triangulate_scene.py GnbMath                  # interactive
+    manimgl animation/triangulate_scene.py GnbTrilateration -w -l   # mp4 file
+    manimgl animation/triangulate_scene.py GnbMath           -w --hd # 1080p
+    manimgl animation/triangulate_scene.py GnbMath                   # interactive
 
 Geometry constants below are the actual ENU values produced by the solver, so
 the picture is faithful rather than illustrative.
@@ -115,7 +115,7 @@ def horizontal_range(dist_m: float, elev_deg: float) -> float:
     return dist_m * np.cos(np.radians(elev_deg))
 
 
-class GnbTriangulation(Scene):
+class GnbTrilateration(Scene):
     def construct(self):
         self.frame.set_height(10)            # zoomed out enough to see both basins
 

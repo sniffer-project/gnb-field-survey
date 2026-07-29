@@ -1,1 +1,1 @@
-"""gNB triangulation from rangefinder survey points."""
+"""gNB trilateration from rangefinder survey points."""

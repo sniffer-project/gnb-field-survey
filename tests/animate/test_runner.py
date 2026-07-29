@@ -12,14 +12,14 @@ from gnb_survey.animate import runner
 def test_argv_uses_the_documented_flags():
     argv = runner.build_argv(
         scene_file=Path("/p/docs/animation/triangulate_scene.py"),
-        scene_name="GnbTriangulation",
+        scene_name="GnbTrilateration",
         quality="hd",
         video_dir=Path("/p/data/output"),
     )
 
     assert argv[0] == "manimgl"
     assert argv[1] == "/p/docs/animation/triangulate_scene.py"
-    assert argv[2] == "GnbTriangulation"
+    assert argv[2] == "GnbTrilateration"
     assert "-w" in argv
     assert "--hd" in argv
     assert "--video_dir" in argv
@@ -57,7 +57,7 @@ def test_missing_manimgl_raises_with_the_install_hint(tmp_path):
     with pytest.raises(runner.ManimMissing) as excinfo:
         runner.render(
             scene_json=scene_json,
-            scene_name="GnbTriangulation",
+            scene_name="GnbTrilateration",
             quality="hd",
             video_dir=tmp_path,
             output_fn=lambda _: None,
@@ -82,7 +82,7 @@ def test_render_passes_the_scene_path_through_the_environment(tmp_path):
 
     code = runner.render(
         scene_json=scene_json,
-        scene_name="GnbTriangulation",
+        scene_name="GnbTrilateration",
         quality="low",
         video_dir=tmp_path,
         output_fn=lambda _: None,

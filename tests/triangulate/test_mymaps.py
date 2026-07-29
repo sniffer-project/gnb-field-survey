@@ -124,7 +124,7 @@ def test_gnb_row_carries_the_solution(tmp_path):
     assert row["Code"] == "gNB"
     assert float(row["Latitude"]) == pytest.approx(_LAT)
     assert float(row["Altitude"]) == pytest.approx(74.7)
-    assert row["Measuring type"] == "Triangulated"
+    assert row["Measuring type"] == "Trilaterated"
     assert "6 pts" in row["Measurement Method"]
 
 

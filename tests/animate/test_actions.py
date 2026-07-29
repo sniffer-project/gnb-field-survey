@@ -20,7 +20,7 @@ def test_animate_with_a_report_name_uses_the_stable_survey_scene_path(
     )
     args = argparse.Namespace(
         name="Cetran",
-        scene="GnbTriangulation",
+        scene="GnbTrilateration",
         quality="low",
     )
     rendered: dict[str, Path] = {}

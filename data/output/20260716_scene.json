@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "survey": "20260716",
+  "origin": {
+    "lat": 1.35579855,
+    "lon": 103.69391447,
+    "alt_m": 34.6329
+  },
+  "points": [
+    {
+      "label": "Pt1",
+      "e": 0.0,
+      "n": 0.0,
+      "dist_m": 49.4,
+      "elev_deg": 51.0
+    },
+    {
+      "label": "Pt2",
+      "e": -4.5105,
+      "n": 6.1612,
+      "dist_m": 54.0,
+      "elev_deg": 46.0
+    },
+    {
+      "label": "Pt3",
+      "e": -15.3801,
+      "n": 9.0483,
+      "dist_m": 54.6,
+      "elev_deg": 46.0
+    }
+  ],
+  "gnb_en": [
+    -14.6682,
+    -28.7864
+  ],
+  "srls_seed_en": null,
+  "ellipse": {
+    "major_m": 3.762844000170444,
+    "minor_m": 0.8407285115174671,
+    "azimuth_deg": 104.86950907093801
+  },
+  "result_lines": [
+    "=== 20260716 gNB ===",
+    "  Position : 1.3555382, 103.6937827   alt 74.5 m",
+    "  SVY21    : E 12471.2  N 37514.5  (EPSG:3414)",
+    "  Uncertainty (1\u03c3): horiz \u00b13.9 m (ellipse 3.8\u00d70.8 m), vert \u00b10.9 m",
+    "  Geometry : OK (cond 33)   seed: azimuth-multistart",
+    "  Model check: assumed \u03c3 2.00 m / 1.40\u00b0  \u00b7  this survey fits 2.21 m / 0.88\u00b0   ok",
+    "  Residuals:",
+    "    Pt1                    dist  +2.0 m   elev +0.0\u00b0   <-- largest",
+    "    Pt2                    dist  -0.8 m   elev +0.9\u00b0",
+    "    Pt3                    dist  -1.1 m   elev -1.0\u00b0"
+  ]
+}

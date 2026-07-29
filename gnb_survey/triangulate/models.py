@@ -1,4 +1,4 @@
-"""Immutable data models for gNB triangulation.
+"""Immutable data models for gNB trilateration.
 
 All structures are frozen dataclasses: data flows in, new objects flow out,
 nothing is mutated in place.
@@ -85,7 +85,7 @@ class PointResidual:
 
 @dataclass(frozen=True)
 class Solution:
-    """Result of triangulating one survey's gNB."""
+    """Result of trilaterating one survey's gNB."""
 
     survey_name: str
     latitude: float

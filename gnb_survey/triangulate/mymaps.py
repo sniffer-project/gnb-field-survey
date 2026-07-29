@@ -97,7 +97,7 @@ def _row(name: str, code: str, lat: float, lon: float, alt: float, method: str) 
         f"{lat:.8f}",
         f"{lon:.8f}",
         f"{alt:.4f}",
-        "Triangulated" if code == _GNB_CODE else "Derived",
+        "Trilaterated" if code == _GNB_CODE else "Derived",
         method,
     ]
 

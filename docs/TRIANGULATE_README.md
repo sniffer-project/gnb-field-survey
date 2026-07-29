@@ -1,11 +1,10 @@
-# gNB Triangulation
+# gNB Trilateration
 
 Computes the 3-D position of a gNB from rangefinder survey points using
 weighted least-squares over slant distance and elevation angle.
 
-Although the project is named "triangulation," the calculation is technically
-**trilateration**: it uses distances and elevation angles, but no compass
-bearing or azimuth.
+The calculation uses **trilateration**: it uses distances and elevation angles,
+but no compass bearing or azimuth.
 
 ## Quick start
 

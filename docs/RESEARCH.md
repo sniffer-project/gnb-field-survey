@@ -1,4 +1,4 @@
-# The Math of gNB Triangulation: Research Report
+# The Math of gNB Trilateration: Research Report
 
 *Generated: 2026-06-29 | Sources: 18 | Confidence: High*
 

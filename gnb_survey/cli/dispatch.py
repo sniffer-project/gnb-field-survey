@@ -130,9 +130,9 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
         help="render quality for `animate` (default hd)",
     )
     parser.add_argument(
-        "--scene", choices=("GnbTriangulation", "GnbMath"),
-        default="GnbTriangulation",
-        help="which scene to render (default GnbTriangulation)",
+        "--scene", choices=("GnbTrilateration", "GnbMath"),
+        default="GnbTrilateration",
+        help="which scene to render (default GnbTrilateration)",
     )
     return parser.parse_args(argv[1:])
 

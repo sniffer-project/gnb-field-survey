@@ -1,4 +1,4 @@
-"""Weighted 3-D least-squares triangulation of a gNB.
+"""Weighted 3-D least-squares trilateration of a gNB.
 
 For each survey point we form two weighted residuals -- one on the slant
 distance, one on the elevation angle -- and let Levenberg-Marquardt find the
@@ -216,7 +216,7 @@ def solve_survey(
     sigma_distance_m: float = SIGMA_DISTANCE_M,
     sigma_elevation_deg: float = SIGMA_ELEVATION_DEG,
 ) -> Solution:
-    """Triangulate the gNB for one survey."""
+    """Trilaterate the gNB for one survey."""
     origin = geo.make_origin(
         survey.points[0].latitude,
         survey.points[0].longitude,

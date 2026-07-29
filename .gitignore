@@ -26,9 +26,6 @@ env/
 .DS_Store
 Thumbs.db
 
-# Build outputs
-data/output/
-
 # LaTeX build artifacts
 *.aux
 *.fdb_latexmk

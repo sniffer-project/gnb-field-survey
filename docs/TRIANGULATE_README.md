@@ -12,23 +12,22 @@ bearing or azimuth.
 From a clone of this repository:
 
 ```bash
-cd main
-python3 -m venv .venv
+python3.13 -m venv .venv
 source .venv/bin/activate
-python -m pip install -r requirements.txt
-python main.py
+pip install -e .
+python survey.py
 ```
 
-The last command opens an interactive picker listing every campaign found under
-`../raw data/`; pressing Enter runs the most recent. To skip the prompt:
+The last command opens an interactive picker listing every survey found under
+`data/raw/`; pressing Enter runs the selected survey. To skip the prompt:
 
 ```bash
-python main.py 20260716
-python main.py --list
-python main.py "/path/to/SURVEY.csv" "/path/to/BINOC.xlsx"
+python survey.py 20260716 solve
+python survey.py --list
+python survey.py solve "/path/to/SURVEY.csv" "/path/to/BINOC.xlsx"
 ```
 
-No campaign is built into the program. `--data-root PATH` scans somewhere else.
+No survey is built into the program. `--data-root PATH` scans somewhere else.
 
 ## What the program needs
 
@@ -62,7 +61,7 @@ matter. Each point may appear **once**; a duplicate is an error, not a silent
 overwrite.
 
 Collect observations from at least three points — four to six well-separated
-ones are preferable. All points in one campaign must observe the same physical
+ones are preferable. All points in one survey must observe the same physical
 gNB antenna or sector. The solver does not currently accept compass bearing or
 azimuth.
 
@@ -147,16 +146,15 @@ told you why and exited non-zero.
 
 ### Plotting the same survey in Google My Maps
 
-`csv_to_mymaps.py` (in the `map-data-plot` repository) converts the same raw
-MapPro CSV into a My Maps-importable file with decimal-degree coordinates. It
-is an independent branch of the pipeline — this program does not read its
-output.
+Conversion is `python survey.py <name> convert`, in this repository. It converts
+the raw MapPro CSV into a My Maps-importable file with decimal-degree coordinates.
+It is an independent branch of the pipeline — solving does not read its output.
 
 ### Step 4: Install the software
 
 Requirements:
 
-- Python 3
+- Python 3.10+
 - NumPy
 - SciPy
 - openpyxl
@@ -166,10 +164,9 @@ Requirements:
 Create an isolated Python environment:
 
 ```bash
-cd main
-python3 -m venv .venv
+python3.13 -m venv .venv
 source .venv/bin/activate
-python -m pip install -r requirements.txt
+pip install -e .
 ```
 
 On Windows PowerShell, activate the environment with:
@@ -181,28 +178,29 @@ On Windows PowerShell, activate the environment with:
 ### Step 5: Run the solver
 
 ```bash
-python main.py                          # interactive picker
-python main.py 20260716                 # named campaign, no prompts
-python main.py --list                   # print campaigns and exit
-python main.py "/path/to/SURVEY.csv" "/path/to/BINOC.xlsx"
+python survey.py                            # interactive picker
+python survey.py 20260716                   # pick a verb for one survey
+python survey.py 20260716 solve             # solve, no prompts
+python survey.py --list                     # what each survey can do
+python survey.py solve "/path/to/SURVEY.csv" "/path/to/BINOC.xlsx"
 ```
 
 If a path contains spaces, keep the quotation marks.
 
-Input precedence is: two explicit paths, then a bare campaign name, then the
+Input precedence is: two explicit paths, then a bare survey name, then the
 interactive picker. The picker only appears when stdin is a terminal — in a pipe, a cron
 job or CI it errors instead, so automation never blocks on a prompt. Add
-`--non-interactive` to enforce that explicitly.
+`--no-input` to enforce that explicitly.
 
 Every run also writes the gNB and a 36-point ring tracing its **95% confidence
-ellipse** into `output/<campaign>_gnb.csv`, ready to import into Google My Maps
+ellipse** into `data/output/<survey>_gnb.csv`, ready to import into Google My Maps
 (choose Latitude and Longitude when it asks which columns position the points).
 Use `--csv PATH` to write elsewhere, or `--no-csv` to skip it.
 
 The ring is deliberately *not* the "1σ" ellipse quoted in the console. In two
 dimensions a 1σ ellipse contains only 39% of the probability, not the 68% most
 readers assume — `1 − exp(−½)`. The 95% contour sits at 2.45σ. For the
-20260716 campaign that is semi-axes of 7.72 × 1.67 m, spanning 15.4 m by
+20260716 survey that is semi-axes of 7.72 × 1.67 m, spanning 15.4 m by
 3.3 m, with the long axis bearing 099°. That long thin shape is the honest
 picture of a fix whose cross-range direction is weakly constrained.
 
@@ -212,7 +210,7 @@ exports.
 
 ### Step 6: Interpret the report
 
-The 20260716 Cetran campaign produces:
+The 20260716 Cetran survey produces:
 
 ```text
 === Cetran gNB ===
@@ -233,7 +231,7 @@ All nine MapPro Lat/Lon export formats of the same survey produce this
 identical result; that equivalence is asserted by the test suite.
 
 The `Model check` line compares the sigmas the solve assumed against what this
-campaign's own residuals imply. They should agree; `<-- CHECK` means the
+survey's own residuals imply. They should agree; `<-- CHECK` means the
 assumed measurement model does not describe this data, and the reported
 uncertainty should not be trusted until you know why.
 
@@ -289,9 +287,9 @@ weak in one direction.
 | Symptom | Likely cause and action |
 |---|---|
 | `error: survey CSV not found` / `binocular workbook not found` | Check the filename, path, and quotation marks. |
-| `no campaigns found under ...` | The data root has no `map-pro-csv/<NAME>/*.csv`, or no matching `<NAME>*.xlsx`. `--list` shows what was found and why anything was skipped. |
-| `no input given and not running interactively` | You piped input or ran under CI. Pass a campaign name or the two paths. |
-| A campaign is listed as `unavailable` | Its survey folder has no CSV, or no `<NAME>*.xlsx` workbook exists. Excel `~$` lock files are ignored by design. |
+| `no surveys found under ...` | The data root has no `surveys/<NAME>/mappro/*.csv`. `--list` shows what was found and why anything was skipped. |
+| `no input given and not running interactively` | You piped input or ran under CI. Pass a survey name or the two paths. |
+| A survey is listed with blocked capabilities | Its survey folder has no CSV, or no `<NAME>*.xlsx` workbook exists. Excel `~$` lock files are ignored by design. |
 | `'ptN' appears twice` | The binocular workbook sights one point on two rows. Fix the label at the named row. |
 | `sighted but never surveyed: ptN` | A point name in the workbook has no matching `Point Name` in the CSV. The error lists the surveyed names. |
 | `no format reproduces the surveyed Northing/Easting` | The CSV's Lat/Lon and Northing/Easting disagree — usually a hand-edited or partially converted file. Re-export from MapPro. |
@@ -319,7 +317,7 @@ residual list, it was not in the binocular workbook.
 - Use clear line of sight and repeat readings that fluctuate.
 - Record angles with the instrument's available precision rather than rounding
   unnecessarily.
-- Keep the same coordinate and altitude source throughout a campaign.
+- Keep the same coordinate and altitude source throughout a survey.
 - Record target-identifying metadata so measurements from different antennas
   are not combined accidentally.
 - If possible, record an independent compass bearing for validation. One
@@ -329,7 +327,7 @@ residual list, it was not in the binocular workbook.
 ## Advanced settings and tests
 
 The assumed instrument errors are defined near the top of
-`gnb_triangulate/solver.py`:
+`gnb_survey/triangulate/solver.py`:
 
 ```python
 SIGMA_DISTANCE_M = 2.0
@@ -356,14 +354,14 @@ and remember that only their ratio affects the result.
 There is no instrument-height constant: the height is applied per point from
 the binocular workbook, because it varies between points.
 
-Run the automated tests from `main/`:
+Run the automated tests:
 
 ```bash
-python -m pytest -q
+pytest
 ```
 
 The suite covers coordinate-format decoding and detection, the two readers and
-their validation, the campaign join, WGS84/ENU conversion, the global
+their validation, the survey join, WGS84/ENU conversion, the global
 initializer, and synthetic solver cases.
 
 ## Method
@@ -409,7 +407,7 @@ never fed into the solver.
 
 If `pyproj` is not installed, the SVY21 line is omitted.
 
-## Results on the 20260716 campaign
+## Results on the 20260716 survey
 
 | Site | gNB latitude | gNB longitude | Altitude | SVY21 E,N | Horizontal 1σ | Vertical 1σ |
 |---|---:|---:|---:|---:|---:|---:|
@@ -447,20 +445,24 @@ measurement model.
 ## Project layout
 
 ```text
-gnb_triangulate/
-  models.py    frozen data models for stations, sightings, campaigns, solutions
-  errors.py    CampaignDataError, raised for any unusable input
-  coords.py    decodes MapPro's nine Lat/Lon formats; detects which one
-  discovery.py find campaigns under a data root
-  prompt.py    interactive selection through injected streams
-  mymaps.py    gNB + 95% confidence ring as a My Maps CSV
-  mappro.py    reads a raw MapPro survey CSV into Stations
-  binoc.py     reads the binocular sightings workbook
-  campaign.py  joins the two, validating that they agree
-  geo.py       WGS84/local ENU conversion and optional SVY21 output
-  srls.py      squared-range least-squares global seed
-  solver.py    weighted 3-D least-squares and covariance
-  report.py    console report formatting
-main.py        command-line entry point
-tests/         coords, readers, join, geo, SR-LS, and solver tests
+gnb_survey/
+  convert/     MapPro export converter (stdlib-only)
+  triangulate/
+    models.py    frozen data models for stations, sightings, surveys, solutions
+    errors.py    SurveyDataError, raised for any unusable input
+    coords.py    decodes MapPro's nine Lat/Lon formats; detects which one
+    discovery.py find surveys under a data root
+    prompt.py    interactive selection through injected streams
+    mymaps.py    gNB + 95% confidence ring as a My Maps CSV
+    mappro.py    reads a raw MapPro survey CSV into Stations
+    binoc.py     reads the binocular sightings workbook
+    assemble.py  joins the two, validating that they agree
+    geo.py       WGS84/local ENU conversion and optional SVY21 output
+    srls.py      squared-range least-squares global seed
+    solver.py    weighted 3-D least-squares and covariance
+    report.py    console report formatting
+  animate/     ManimGL scene data builder & runner
+  cli/         CLI dispatch, capability checks & menu
+survey.py      command-line entry point
+tests/         convert, triangulate, animate, and cli test suite
 ```

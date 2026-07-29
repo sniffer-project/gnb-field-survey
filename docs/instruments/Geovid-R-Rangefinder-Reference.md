@@ -44,7 +44,7 @@ Two things matter for the lab work:
   weight, no conversion needed.
 - **Scan mode doubles the error below 350 m.** Scan mode is press-and-hold
   continuous ranging (p.17), which is the natural way to acquire a small target
-  like an antenna. Fitting the 20260716 gNB campaign's own residuals gives
+  like an antenna. Fitting the 20260716 gNB survey's own residuals gives
   σ = 1.94 m — matching the scan-mode figure, not normal operation.
 
 ---

@@ -336,17 +336,17 @@ cd Documents/Projects/temasek-lab/map-data-plot
 % =========================================================
 
 \subsection{Step 20: Translate Packed DMS to Decimal Degrees}
-Run the Python script \texttt{csv\_to\_mymaps.py} on the transferred CSV file by typing the following command in your terminal:
+Run the Python CLI \texttt{survey.py convert} on the transferred CSV file by typing the following command in your terminal:
 
 \begin{lstlisting}[language=bash]
 # Convert a single survey file:
-python3 csv_to_mymaps.py 20260626.csv
+python3 survey.py convert 20260626.csv
 
 # Convert multiple survey files simultaneously:
-python3 csv_to_mymaps.py file1.csv file2.csv
+python3 survey.py convert file1.csv file2.csv
 
 # View help and usage options:
-python3 csv_to_mymaps.py --help
+python3 survey.py --help
 \end{lstlisting}
 
 The script utilizes the \texttt{argparse} library to parse and process your files, replacing the packed Degrees-Minutes-Seconds coordinate values in the columns \textit{Latitude}, \textit{Longitude}, \textit{Original Latitude}, \textit{Original Longitude}, \textit{Base Latitude}, and \textit{Base Longitude} in-place with signed decimal degrees. It writes the sanitized data to a new file named \texttt{20260626\_mymaps.csv} (or \texttt{<filename>\_mymaps.csv}).

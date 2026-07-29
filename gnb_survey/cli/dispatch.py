@@ -65,6 +65,22 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         prog="survey.py",
         description="Convert, solve and animate gNB field surveys.",
+        epilog=(
+            "Verbs:\n"
+            "  convert    convert raw MapPro exports to My Maps CSVs\n"
+            "  solve      trilaterate gNB position and write results & scene JSON\n"
+            "  animate    render ManimGL visualization scene\n\n"
+            "Examples:\n"
+            "  survey.py                            interactive picker\n"
+            "  survey.py 20260716                   pick a verb for one survey\n"
+            "  survey.py 20260716 convert         convert one survey\n"
+            "  survey.py 20260716 solve           solve one survey\n"
+            "  survey.py 20260716 animate         render scene for one survey\n"
+            "  survey.py --list                   list surveys and capabilities\n"
+            "  survey.py convert FILE.csv...      convert files by path\n"
+            "  survey.py solve SURVEY.csv BINOC.xlsx"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
         "positionals", nargs="*", metavar="SURVEY|VERB|FILE",

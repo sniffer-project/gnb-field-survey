@@ -10,11 +10,11 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Callable
 
+from ..streams import OutputFn, default_error_fn
 from ..trilaterate.discovery import SurveyFiles, DiscoveryResult
 from .capability import VERBS, blocked_for
 
 InputFn = Callable[[str], str]
-OutputFn = Callable[[str], None]
 
 _MANUAL_KEY = "m"
 
@@ -24,6 +24,7 @@ def select_survey(
     *,
     input_fn: InputFn,
     output_fn: OutputFn,
+    error_fn: OutputFn = default_error_fn,
 ) -> SurveyFiles | None:
     """Return the chosen survey, or None if the user aborted."""
     output_fn("")
@@ -48,13 +49,15 @@ def select_survey(
         if not answer:
             answer = "1"
         if answer.lower() == _MANUAL_KEY:
-            return _manual_entry(input_fn, output_fn)
+            return _manual_entry(input_fn, output_fn, error_fn)
         if answer.isdigit() and 1 <= int(answer) <= len(result.surveys):
             return result.surveys[int(answer) - 1]
-        output_fn(f"  Not a choice: {answer!r}")
+        error_fn(f"  Not a choice: {answer!r}")
 
 
-def _ask_for_file(label: str, input_fn: InputFn, output_fn: OutputFn) -> Path | None:
+def _ask_for_file(
+    label: str, input_fn: InputFn, output_fn: OutputFn, error_fn: OutputFn
+) -> Path | None:
     while True:
         try:
             raw = input_fn(f"  {label}: ").strip()
@@ -64,19 +67,21 @@ def _ask_for_file(label: str, input_fn: InputFn, output_fn: OutputFn) -> Path | 
         # brings the surrounding quotes along.
         raw = raw.strip('"').strip("'").strip()
         if not raw:
-            output_fn("  Required.")
+            error_fn("  Required.")
             continue
         path = Path(raw).expanduser()
         if path.is_file():
             return path
-        output_fn(f"  Not a file: {path}")
+        error_fn(f"  Not a file: {path}")
 
 
-def _manual_entry(input_fn: InputFn, output_fn: OutputFn) -> SurveyFiles | None:
-    mappro = _ask_for_file("MapPro CSV", input_fn, output_fn)
+def _manual_entry(
+    input_fn: InputFn, output_fn: OutputFn, error_fn: OutputFn
+) -> SurveyFiles | None:
+    mappro = _ask_for_file("MapPro CSV", input_fn, output_fn, error_fn)
     if mappro is None:
         return None
-    binoc = _ask_for_file("Sightings workbook", input_fn, output_fn)
+    binoc = _ask_for_file("Sightings workbook", input_fn, output_fn, error_fn)
     if binoc is None:
         return None
     return SurveyFiles(
@@ -92,6 +97,7 @@ def select_verb(
     *,
     input_fn: InputFn,
     output_fn: OutputFn,
+    error_fn: OutputFn = default_error_fn,
     manim_available: bool | None = None,
 ) -> str | None:
     """Ask what to do with `files`. Blocked verbs are listed, not hidden.
@@ -128,10 +134,10 @@ def select_verb(
             blocked = blocks[verb]
             if blocked is None:
                 return verb
-            output_fn(f"  {verb} is unavailable: {blocked.reason}")
-            output_fn(f"  To fix: {blocked.fix}")
+            error_fn(f"  {verb} is unavailable: {blocked.reason}")
+            error_fn(f"  To fix: {blocked.fix}")
             continue
-        output_fn(f"  Not a choice: {answer!r}")
+        error_fn(f"  Not a choice: {answer!r}")
 
 
 _VERB_LABELS = {

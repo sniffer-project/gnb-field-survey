@@ -13,6 +13,7 @@ import subprocess
 from pathlib import Path
 from typing import Callable
 
+from ..streams import OutputFn, default_error_fn
 from . import availability
 from .availability import Renderer
 
@@ -85,7 +86,8 @@ def render(
     scene_name: str,
     quality: str,
     video_dir: Path,
-    output_fn: Callable[[str], None],
+    output_fn: OutputFn,
+    error_fn: OutputFn = default_error_fn,
     scene_file: Path | None = None,
     runner_fn: RunnerFn | None = None,
     renderer: Renderer | None = None,
@@ -124,5 +126,5 @@ def render(
     if code == 0:
         output_fn(f"  Video written under {video_dir}")
     else:
-        output_fn(f"  {MANIM_BINARY} exited {code}; see its output above.")
+        error_fn(f"  {MANIM_BINARY} exited {code}; see its output above.")
     return code

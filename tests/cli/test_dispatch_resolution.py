@@ -1,5 +1,6 @@
 """The CLI resolves inputs from arguments, a named survey, or a prompt."""
 
+import json
 from pathlib import Path
 
 import openpyxl
@@ -67,10 +68,18 @@ def _run(argv, **kwargs):
     `main` falls back to sys.stdin.isatty(), which is False under pytest's
     capture but True under `pytest -s`. Pinning it here keeps a suite run
     from blocking on the verb menu's `input()`.
+
+    Both the result stream (stdout) and the error stream (stderr) feed the
+    same `lines` list, in call order. Callers here only assert substrings,
+    never which stream produced them -- that split is covered on its own in
+    test_streams.py -- so merging the two keeps every assertion below
+    agnostic to which sink a given message lives on.
     """
     kwargs.setdefault("is_tty", False)
     lines: list[str] = []
-    code = cli.main(["survey.py", *argv], output_fn=lines.append, **kwargs)
+    code = cli.main(
+        ["survey.py", *argv], output_fn=lines.append, error_fn=lines.append, **kwargs
+    )
     return code, "\n".join(lines)
 
 
@@ -184,6 +193,7 @@ def test_do_solve_refuses_a_survey_with_no_workbook(tmp_path):
         cli._parse_args(["survey.py"]),
         output_dir=tmp_path / "out",
         output_fn=lines.append,
+        error_fn=lines.append,
     )
 
     assert code == 1
@@ -373,6 +383,43 @@ def test_sigma_overrides_reach_the_report(data_root):
     )
     assert code == 0
     assert "1.00 m / 0.50°" in text
+
+
+@pytest.mark.unit
+def test_zero_sigma_is_an_argparse_error_not_a_scipy_traceback(data_root):
+    """A zero sigma used to reach `scipy.optimize.least_squares` unvalidated
+    and surface as `ValueError: Residuals are not finite in the initial
+    point.` several frames deep. argparse must refuse it before that."""
+    with pytest.raises(SystemExit) as exc_info:
+        _run(["20260716", "--data-root", str(data_root), "--sigma-distance", "0"])
+    assert exc_info.value.code == 2
+
+
+@pytest.mark.unit
+def test_negative_sigma_is_an_argparse_error(data_root):
+    with pytest.raises(SystemExit) as exc_info:
+        _run(
+            ["20260716", "--data-root", str(data_root), "--sigma-elevation", "-1"]
+        )
+    assert exc_info.value.code == 2
+
+
+@pytest.mark.unit
+def test_list_json_is_parseable_and_names_the_survey(data_root):
+    code, text = _run(["--list", "--json", "--data-root", str(data_root)])
+    assert code == 0
+    payload = json.loads(text)
+    assert payload["surveys"][0]["name"] == "20260716"
+    assert "solve" in payload["surveys"][0]["can"]
+
+
+@pytest.mark.unit
+def test_solve_json_is_parseable_and_carries_the_position(data_root):
+    code, text = _run(["20260716", "--data-root", str(data_root), "--json"])
+    assert code == 0
+    payload = json.loads(text)
+    assert payload["survey_name"] == "20260716"
+    assert payload["latitude"] == pytest.approx(1.35579855, abs=1e-3)
 
 
 @pytest.mark.integration

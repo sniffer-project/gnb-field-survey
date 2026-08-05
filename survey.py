@@ -18,13 +18,7 @@ needs its <name>*.xlsx sightings workbook, and animating needs manimgl.
 
 from __future__ import annotations
 
-import sys
-
-from gnb_survey.cli.dispatch import main
+from gnb_survey.cli.dispatch import cli_entry
 
 if __name__ == "__main__":
-    try:
-        raise SystemExit(main(sys.argv))
-    except KeyboardInterrupt:
-        print("\ncancelled.", file=sys.stderr)
-        raise SystemExit(130)
+    cli_entry()

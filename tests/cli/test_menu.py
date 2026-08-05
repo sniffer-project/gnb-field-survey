@@ -54,7 +54,10 @@ def test_numeric_selection(tmp_path):
 def test_out_of_range_reprompts_then_succeeds(tmp_path):
     lines: list[str] = []
     chosen = select_survey(
-        _result(tmp_path), input_fn=_Answers("9", "abc", "1"), output_fn=lines.append
+        _result(tmp_path),
+        input_fn=_Answers("9", "abc", "1"),
+        output_fn=lines.append,
+        error_fn=lines.append,
     )
     assert chosen.name == "20260801"
     assert any("Not a choice" in line for line in lines)
@@ -95,6 +98,7 @@ def test_manual_entry_reprompts_on_a_bad_path(tmp_path):
         _result(tmp_path),
         input_fn=_Answers("m", "/no/such/file.csv", str(survey), str(binoc)),
         output_fn=lines.append,
+        error_fn=lines.append,
     )
     assert chosen.mappro == survey
     assert any("Not a file" in line for line in lines)
@@ -160,6 +164,7 @@ def test_verb_menu_refuses_to_pick_a_blocked_verb():
         files,
         input_fn=lambda _: next(answers),
         output_fn=lines.append,
+        error_fn=lines.append,
         manim_available=True,
     )
 

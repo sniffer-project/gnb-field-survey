@@ -14,6 +14,9 @@ dependencies = [
     "pyproj",
 ]
 
+[project.scripts]
+gnb-survey = "gnb_survey.cli.dispatch:cli_entry"
+
 [project.optional-dependencies]
 # manimgl pulls in pydub, which imports the stdlib `audioop` module that PEP 594
 # removed in Python 3.13; pydub's fallback (`pyaudioop`) was never published.

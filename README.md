@@ -39,6 +39,25 @@ python survey.py
 pytest
 ```
 
+`pip install -e .` also puts a `gnb-survey` command on your `PATH`, equivalent
+to `python survey.py` — `gnb-survey 20260716 solve` works the same as
+`python survey.py 20260716 solve` from anywhere, without `python` or a path
+to the checkout.
+
+## Using it in scripts
+
+`survey.py <name>` with no verb prompts for one interactively. In a
+non-interactive run (piped stdin, or `--no-input`) it defaults to `solve` —
+the same behaviour the old `main.py` had. Scripts that want a different verb
+should say so explicitly (`survey.py <name> convert`), since a bare survey
+name will solve it.
+
+`--json` (on `--list` and `solve`) prints machine-readable output on stdout
+instead of the human report; `-q`/`--quiet` silences the human report
+entirely while still writing files and setting the exit code; errors always
+go to stderr, so `2>/dev/null` is safe. `--version` and `-h`/`--help` need no
+data root and work from anywhere.
+
 ## Project Structure
 
 ```

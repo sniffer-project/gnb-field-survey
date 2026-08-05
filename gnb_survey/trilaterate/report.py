@@ -1,6 +1,8 @@
-"""Human-readable rendering of a Solution."""
+"""Human-readable and machine-readable (`--json`) rendering of a Solution."""
 
 from __future__ import annotations
+
+from dataclasses import asdict
 
 from .models import CONDITION_WARN_THRESHOLD, Solution
 
@@ -71,3 +73,16 @@ def format_solution(sol: Solution) -> str:
             f"elev {r.elevation_residual_deg:+4.1f}°{flag}"
         )
     return "\n".join(lines)
+
+
+def solution_to_dict(sol: Solution) -> dict[str, object]:
+    """Every field of `sol`, JSON-serializable, for `solve --json`.
+
+    `well_constrained` is added because it is a derived property rather than
+    a dataclass field, and it is exactly the thing a script polling for
+    solve success would otherwise have to re-derive from n_points and
+    condition_number by hand.
+    """
+    data = asdict(sol)
+    data["well_constrained"] = sol.well_constrained
+    return data

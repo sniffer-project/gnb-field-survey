@@ -9,6 +9,7 @@ from here.
 
 from __future__ import annotations
 
+import zipfile
 from pathlib import Path
 
 import openpyxl
@@ -49,7 +50,14 @@ def _number(value: object, field: str, point: str, path: Path) -> float:
 def read_binoc_readings(xlsx_path: str | Path) -> tuple[BinocReading, ...]:
     """Read every sighting, rejecting duplicates and out-of-range values."""
     path = Path(xlsx_path)
-    workbook = openpyxl.load_workbook(path, data_only=True)
+    try:
+        workbook = openpyxl.load_workbook(path, data_only=True)
+    except (zipfile.BadZipFile, KeyError, ValueError, OSError) as exc:
+        # A half-copied or non-.xlsx file off a field laptop isn't a valid
+        # zip at all; openpyxl's own errors (and a plain OSError, e.g. a
+        # missing file) are just as unreadable to a non-Python user as the
+        # zipfile traceback underneath them. Name the file, not the library.
+        raise SurveyDataError(f"{path.name}: cannot read workbook: {exc}") from exc
     rows = [r for r in workbook.worksheets[0].iter_rows(values_only=True) if any(r)]
     if not rows:
         raise SurveyDataError(f"{path.name}: sheet is empty")

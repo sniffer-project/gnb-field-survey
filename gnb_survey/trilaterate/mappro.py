@@ -72,14 +72,19 @@ def _check_altitude_datum(row: dict[str, str], name: str, ground: float, path: P
 def read_stations(csv_path: str | Path) -> tuple[Station, ...]:
     """Read every surveyed point, with coordinates verified against Northing/Easting."""
     path = Path(csv_path)
-    # latin-1 never raises on the receiver's 0xb0 / 0x1a bytes.
-    with path.open(newline="", encoding="latin-1") as handle:
-        reader = csv.reader(handle)
-        try:
-            headers = _clean_headers(next(reader))
-        except StopIteration:
-            raise SurveyDataError(f"{path.name}: file is empty") from None
-        rows = [dict(zip(headers, line)) for line in reader if any(c.strip() for c in line)]
+    try:
+        # latin-1 never raises on the receiver's 0xb0 / 0x1a bytes.
+        with path.open(newline="", encoding="latin-1") as handle:
+            reader = csv.reader(handle)
+            try:
+                headers = _clean_headers(next(reader))
+            except StopIteration:
+                raise SurveyDataError(f"{path.name}: file is empty") from None
+            rows = [
+                dict(zip(headers, line)) for line in reader if any(c.strip() for c in line)
+            ]
+    except OSError as exc:
+        raise SurveyDataError(f"{path.name}: cannot read file: {exc}") from exc
 
     missing = [c for c in _REQUIRED if c not in headers]
     if missing:

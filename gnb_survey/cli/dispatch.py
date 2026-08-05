@@ -8,10 +8,13 @@ terminal -- clig.dev's rule that a prompt must never be the only way in.
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 from typing import Callable
 
+from .. import __version__
+from ..streams import OutputFn, default_error_fn
 from ..trilaterate import solver
 from ..trilaterate.discovery import (
     SURVEY_SUBDIR,
@@ -20,10 +23,10 @@ from ..trilaterate.discovery import (
     discover_surveys,
 )
 from . import actions, menu
+from .argtypes import positive_float
 from .capability import VERBS, blocked_for
 
 InputFn = Callable[[str], str]
-OutputFn = Callable[[str], None]
 
 _ROOT = Path(__file__).resolve().parents[2]
 _DEFAULT_DATA_ROOT = _ROOT / "data" / "raw"
@@ -32,10 +35,13 @@ _DEFAULT_PROCESSED_ROOT = _ROOT / "data" / "processed"
 _DEFAULT_OUTPUT_DIR = _ROOT / "data" / "output"
 
 # What `survey.py 20260716` does with no verb and no terminal to ask at.
-# Matches what `main.py 20260716` used to do.
+# Matches what `main.py 20260716` used to do. Documented in the --help
+# epilog below, since a default this consequential must not be a surprise.
 _DEFAULT_VERB = "solve"
 
 _MAPPRO_DIRS = ("mappro", "map_pro")
+
+_REPO_URL = "https://github.com/sniffer-project/gnb-field-survey"
 
 
 def split_target_and_verb(
@@ -78,13 +84,20 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
             "  survey.py 20260716 animate         render scene for one survey\n"
             "  survey.py --list                   list surveys and capabilities\n"
             "  survey.py convert FILE.csv...      convert files by path\n"
-            "  survey.py solve SURVEY.csv BINOC.xlsx"
+            "  survey.py solve SURVEY.csv BINOC.xlsx\n\n"
+            "With a survey name but no verb: an interactive run prompts for the\n"
+            "verb; a non-interactive run (piped stdin, or --no-input) defaults\n"
+            f"to `solve`.\n\n"
+            f"Docs & issues: {_REPO_URL}"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
         "positionals", nargs="*", metavar="SURVEY|VERB|FILE",
         help="a survey name then a verb, or a verb then explicit file paths",
+    )
+    parser.add_argument(
+        "--version", action="version", version=f"%(prog)s {__version__}",
     )
     parser.add_argument(
         "--list", action="store_true",
@@ -106,6 +119,16 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
         "--no-input", "--non-interactive", action="store_true", dest="no_input",
         help="never prompt; error instead if inputs are missing",
     )
+    parser.add_argument(
+        "-q", "--quiet", action="store_true",
+        help="print nothing on success; files are still written and errors "
+        "still go to stderr",
+    )
+    parser.add_argument(
+        "--json", action="store_true",
+        help="print machine-readable JSON instead of the human report "
+        "(--list and solve only)",
+    )
     parser.add_argument("--name", help="survey name for the report")
     parser.add_argument(
         "--csv", type=Path, metavar="OUT.csv",
@@ -115,11 +138,11 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
         "--no-csv", action="store_true", help="skip writing the My Maps CSV",
     )
     parser.add_argument(
-        "--sigma-distance", type=float, default=solver.SIGMA_DISTANCE_M,
+        "--sigma-distance", type=positive_float, default=solver.SIGMA_DISTANCE_M,
         help=f"1-sigma distance error, metres (default {solver.SIGMA_DISTANCE_M})",
     )
     parser.add_argument(
-        "--sigma-elevation", type=float, default=solver.SIGMA_ELEVATION_DEG,
+        "--sigma-elevation", type=positive_float, default=solver.SIGMA_ELEVATION_DEG,
         help=(
             f"1-sigma elevation error, degrees (default {solver.SIGMA_ELEVATION_DEG}). "
             "Only the ratio of the two sigmas affects the result."
@@ -156,6 +179,24 @@ def _describe(
         )
     for name, reason in result.unreadable:
         output_fn(f"    {name}   unreadable: {reason}")
+
+
+def _describe_json(result: DiscoveryResult, data_root: Path) -> dict:
+    """The `--list` table as a JSON-serializable dict, for `--list --json`."""
+    return {
+        "data_root": str(data_root),
+        "surveys": [
+            {
+                "name": files.name,
+                "export_count": files.export_count,
+                "can": [v for v in VERBS if blocked_for(v, files) is None],
+            }
+            for files in result.surveys
+        ],
+        "unreadable": [
+            {"name": name, "reason": reason} for name, reason in result.unreadable
+        ],
+    }
 
 
 def _survey_name_for(path: Path) -> str:
@@ -229,6 +270,7 @@ def _resolve(
     interactive: bool,
     input_fn: InputFn,
     output_fn: OutputFn,
+    error_fn: OutputFn,
 ) -> SurveyFiles | str:
     """Return the survey to act on, or an error message explaining why not."""
     if target is not None and verb is not None and rest:
@@ -262,7 +304,9 @@ def _resolve(
             "survey name, or a verb with explicit file paths."
         )
 
-    chosen = menu.select_survey(result, input_fn=input_fn, output_fn=output_fn)
+    chosen = menu.select_survey(
+        result, input_fn=input_fn, output_fn=output_fn, error_fn=error_fn
+    )
     if chosen is None:
         return "error: cancelled."
     return chosen
@@ -273,20 +317,26 @@ def main(
     *,
     input_fn: InputFn = input,
     output_fn: OutputFn = print,
+    error_fn: OutputFn = default_error_fn,
     is_tty: bool | None = None,
 ) -> int:
     args = _parse_args(argv)
     if is_tty is None:
         is_tty = sys.stdin.isatty()
     interactive = is_tty and not args.no_input
+    if args.quiet:
+        output_fn = lambda _line: None  # noqa: E731
 
     result = discover_surveys(args.data_root, args.output_dir)
 
     if args.list:
         if not result.surveys and not result.unreadable:
-            output_fn(_no_surveys_message(args.data_root))
+            error_fn(_no_surveys_message(args.data_root))
             return 1
-        _describe(result, args.data_root, output_fn)
+        if args.json:
+            output_fn(json.dumps(_describe_json(result, args.data_root), indent=2))
+        else:
+            _describe(result, args.data_root, output_fn)
         return 0
 
     # A survey folder named after a verb would make `survey.py solve`
@@ -294,7 +344,7 @@ def main(
     # rather than picking an interpretation.
     collisions = sorted({f.name for f in result.surveys} & set(VERBS))
     if collisions:
-        output_fn(
+        error_fn(
             f"error: these surveys are named after verbs, so they cannot be "
             f"addressed unambiguously: {', '.join(collisions)}. Rename the "
             f"folder under {args.data_root / SURVEY_SUBDIR}/."
@@ -306,26 +356,27 @@ def main(
     resolved = _resolve(
         args, result, target, verb, rest,
         interactive=interactive, input_fn=input_fn, output_fn=output_fn,
+        error_fn=error_fn,
     )
     if isinstance(resolved, str):
-        output_fn(resolved)
+        error_fn(resolved)
         return 1
 
     if verb is None:
         if interactive:
             verb = menu.select_verb(
-                resolved, input_fn=input_fn, output_fn=output_fn
+                resolved, input_fn=input_fn, output_fn=output_fn, error_fn=error_fn
             )
             if verb is None:
-                output_fn("cancelled.")
+                error_fn("cancelled.")
                 return 1
         else:
             verb = _DEFAULT_VERB
 
     blocked = blocked_for(verb, resolved)
     if blocked is not None:
-        output_fn(f"error: cannot {verb} {resolved.name}: {blocked.reason}")
-        output_fn(f"  To fix: {blocked.fix}")
+        error_fn(f"error: cannot {verb} {resolved.name}: {blocked.reason}")
+        error_fn(f"  To fix: {blocked.fix}")
         return 1
 
     if verb == "convert":
@@ -334,11 +385,31 @@ def main(
             raw_root=args.data_root,
             processed_root=args.processed_root,
             output_fn=output_fn,
+            error_fn=error_fn,
         )
     if verb == "solve":
         return actions.do_solve(
-            resolved, args, output_dir=args.output_dir, output_fn=output_fn
+            resolved, args, output_dir=args.output_dir,
+            output_fn=output_fn, error_fn=error_fn,
         )
     return actions.do_animate(
-        resolved, args, output_dir=args.output_dir, output_fn=output_fn
+        resolved, args, output_dir=args.output_dir,
+        output_fn=output_fn, error_fn=error_fn,
     )
+
+
+def run(argv: list[str] | None = None) -> int:
+    """Run the CLI and return its exit code, handling Ctrl-C the same way
+    everywhere: whether invoked as `python survey.py` or as the installed
+    `gnb-survey` console script (see pyproject.toml's [project.scripts]).
+    """
+    try:
+        return main(sys.argv if argv is None else argv)
+    except KeyboardInterrupt:
+        default_error_fn("\ncancelled.")
+        return 130
+
+
+def cli_entry() -> None:
+    """Entry point for the `gnb-survey` console script."""
+    raise SystemExit(run())

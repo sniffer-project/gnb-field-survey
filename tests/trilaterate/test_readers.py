@@ -93,6 +93,12 @@ def test_rejects_csv_missing_required_columns(tmp_path):
         read_stations(bad)
 
 
+@pytest.mark.unit
+def test_reports_an_unreadable_csv_path(tmp_path):
+    with pytest.raises(SurveyDataError, match="missing.csv"):
+        read_stations(tmp_path / "missing.csv")
+
+
 # The DMS exports resolve to 0.0001 arc-seconds (~3 mm), so formats agree to
 # within their own quantisation, not bit-for-bit. 2 cm is comfortably below the
 # receiver's own HRMS (3.6-9.9 mm) and far below any wrong-format error, which
@@ -162,6 +168,26 @@ def test_binoc_rejects_nonpositive_distance(tmp_path):
     path = _write_binoc(tmp_path / "bad.xlsx", [("pt1", 0, 51, 2.06)])
     with pytest.raises(SurveyDataError, match="distance"):
         read_binoc_readings(path)
+
+
+@pytest.mark.unit
+def test_binoc_reports_a_corrupt_workbook_instead_of_crashing(tmp_path):
+    """A half-copied .xlsx off a field laptop isn't a valid zip at all.
+
+    openpyxl.load_workbook raised zipfile.BadZipFile straight through, which
+    surfaced as an unhandled traceback naming zipfile/__init__.py rather than
+    the file the user actually needs to fix.
+    """
+    path = tmp_path / "corrupt.xlsx"
+    path.write_bytes(b"not a zip file at all")
+    with pytest.raises(SurveyDataError, match="corrupt.xlsx"):
+        read_binoc_readings(path)
+
+
+@pytest.mark.unit
+def test_binoc_reports_an_unreadable_workbook_path(tmp_path):
+    with pytest.raises(SurveyDataError, match="missing.xlsx"):
+        read_binoc_readings(tmp_path / "missing.xlsx")
 
 
 # --- the join --------------------------------------------------------------
